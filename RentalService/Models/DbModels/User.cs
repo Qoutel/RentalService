@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+
 namespace RentalService.Models
 {
     public class User: IdentityUser
@@ -11,5 +12,8 @@ namespace RentalService.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public List<Rent>? CurrentLeases { get; set; }
         public List<RentsHistory>? PastLeases { get; set; }
+        public List<UserPassportPhoto>? PassportPhotos { get; set; }
+        public List<UserDriverLicensePhoto>? DriverLicensePhotos { get; set; }
+        public UserIdentificationCodePhoto? IdentificationCodePhoto { get; set; }
     }
 }
