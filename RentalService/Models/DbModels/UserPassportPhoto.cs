@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string Path { get; set; }
+        public byte[] Photo { get; set; }
         public User User { get; set; }
     }
 }
