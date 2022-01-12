@@ -1,0 +1,47 @@
+﻿@model RentalService.ViewModels.CabinetViewModel
+<h2>@User.Identity.Name personal area</h2><br />
+<p>First Name: @Model.User.FirstName</p>
+<p>Last Name: @Model.User.LastName</p>
+<p>Adress: @Model.User.Adress</p>
+<p>Passport photo:</p>
+<tr>
+@if(Model.PassportPhoto.Count > 0)
+{
+    var i = 1;
+    foreach (var photo in Model.PassportPhoto)
+    {
+        <td>PassportPhoto @(i++)</td>
+        <td>
+            <form asp-action="DeletePhoto" asp-route-id="@photo.Id" method="post">
+                <button type="submit" class="btn btn-sm btn-danger">
+                    Delete
+                </button>
+            </form>
+        </td>
+    }
+}
+</tr>
+    @if (Model.PassportPhoto.Count < 3)
+{
+    <form asp-action="AddPassportPhoto" asp-controller="Account" method="post" enctype="multipart/form-data">
+        <p>
+            <label>Add assport photo:</label>
+            <input name="Photo" type="file" class="form-control" />
+        </p>
+        <p>
+            <input type="submit" value="Add" />
+        </p>
+    </form>
+}
+@if (@Model.User.DateOfBirth > DateTime.Now.AddYears(-(DateTime.Now.Year - @Model.User.DateOfBirth.Year)))
+{
+    <p>Age: @(DateTime.Now.Year - @Model.User.DateOfBirth.Year - 1)</p>
+} 
+else
+{
+    <p>Age: @(DateTime.Now.Year - @Model.User.DateOfBirth.Year)</p>
+}
+<a class="btn btn-sm btn-primary" asp-action="ChangePassword">Change password</a>
+<form method="post" asp-controller="Account" asp-action="Logout"><br />
+    <input type="submit" value="Log out" />
+</form>

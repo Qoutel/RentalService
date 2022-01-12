@@ -15,6 +15,6 @@ namespace RentalService.Models
         public bool AutomaticTransmission  { get; set; }
         public Location Location { get; set; }
         public VehicleClassification VehicleClass { get; set; }
-        public byte[] Photo { get; set; }
+        public VehiclePhoto Photo { get; set; }
     }
 }

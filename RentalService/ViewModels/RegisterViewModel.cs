@@ -17,7 +17,8 @@ namespace RentalService.ViewModels
         public string LastName { get; set; }
         [Required]
         [Display(Name = "Year of birth")]
-        public int Year { get; set; }
+        [DataType(DataType.Date)]
+        public DateTime DateOfBirth { get; set; }
         [Required]
         [Display(Name = "Adress")]
         public string Adress { get; set; }

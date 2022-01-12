@@ -1,6 +1,6 @@
 ﻿namespace RentalService.Models
 {
-    public class UserDriverLicensePhoto
+    public class VehiclePhoto
     {
         public int Id { get; set; }
         public string Name { get; set; }
