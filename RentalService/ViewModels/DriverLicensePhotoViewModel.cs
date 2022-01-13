@@ -1,6 +1,6 @@
 ﻿namespace RentalService.ViewModels
 {
-    public class PassportPhotoViewModel
+    public class DriverLicensePhotoViewModel
     {
         public IFormFile Photo { get; set; }
     }

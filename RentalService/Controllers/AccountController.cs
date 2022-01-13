@@ -87,8 +87,11 @@ namespace RentalService.Controllers
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             User user = await _userManager.FindByIdAsync(userId);
-            var photo = _dbContext.UserPassportPhoto.Where(x => x.Name == user.Email + "PassportPhoto").ToList();
-            CabinetViewModel model = new CabinetViewModel() { PassportPhoto = photo, User = user };
+            var passportPhoto = _dbContext.UserPassportPhoto.Where(x => x.Name == user.Email + "PassportPhoto").ToList();
+            var driverLicensePhoto = _dbContext.UserDriverLicensePhoto.Where(x => x.Name == user.Email + "DriverLicensePhoto").ToList();
+            var identificationCodePhoto = _dbContext.UserIdentificationCodePhoto.Where(x => x.Name == user.Email + "IdentificationCodePhoto").ToList();
+            CabinetViewModel model = new CabinetViewModel() { PassportPhoto = passportPhoto, User = user, 
+                DriversLicensePhoto = driverLicensePhoto, IdentificationCodePhoto = identificationCodePhoto};
             return View(model);
         }
         [Authorize]
@@ -138,8 +141,9 @@ namespace RentalService.Controllers
             }
             return View(model);
         }
+        [Authorize]
         [HttpPost]
-        public async Task<IActionResult> AddPassportPhoto(PassportPhotoViewModel model)
+        public async Task<IActionResult> AddPassportPhoto(UploadPhotoViewModel model)
         {
             if (model.Photo != null)
             {
@@ -155,19 +159,84 @@ namespace RentalService.Controllers
                 _context.Users.Update(user);
                 _context.SaveChanges();
             }
-            else
-            {
-                return RedirectToAction("Login");
-            }
             return RedirectToAction("Cabinet");
         }
+        [Authorize]
         [HttpPost]
-        public IActionResult DeletePhoto(int id)
+        public IActionResult DeletePassportPhoto(int id)
         {
             var photo =  _dbContext.UserPassportPhoto.Where(p => p.Id == id).FirstOrDefault();
             if (photo != null)
             {
                 _dbContext.UserPassportPhoto.Remove(photo);
+                _dbContext.SaveChanges();
+
+            }
+            return RedirectToAction("Cabinet");
+        }
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> AddDriverLicensePhoto(UploadPhotoViewModel model)
+        {
+            if (model.Photo != null)
+            {
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                User user = await _userManager.FindByIdAsync(userId);
+                byte[] img = null;
+                using (var reader = new BinaryReader(model.Photo.OpenReadStream()))
+                {
+                    img = reader.ReadBytes((int)model.Photo.Length);
+                }
+                UserDriverLicensePhoto userDriverLicensePhoto = new UserDriverLicensePhoto() { Name = user.Email + "DriverLicensePhoto", 
+                    Photo = img };
+                user.DriverLicensePhotos.Add(userDriverLicensePhoto);
+                _context.Users.Update(user);
+                _context.SaveChanges();
+            }
+            return RedirectToAction("Cabinet");
+        }
+        [Authorize]
+        [HttpPost]
+        public IActionResult DeleteDriverLicensePhoto(int id)
+        {
+            var photo = _dbContext.UserDriverLicensePhoto.Where(p => p.Id == id).FirstOrDefault();
+            if (photo != null)
+            {
+                _dbContext.UserDriverLicensePhoto.Remove(photo);
+                _dbContext.SaveChanges();
+
+            }
+            return RedirectToAction("Cabinet");
+        }
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> AddIdentificationCodePhoto(UploadPhotoViewModel model)
+        {
+            if (model.Photo != null)
+            {
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                User user = await _userManager.FindByIdAsync(userId);
+                byte[] img = null;
+                using (var reader = new BinaryReader(model.Photo.OpenReadStream()))
+                {
+                    img = reader.ReadBytes((int)model.Photo.Length);
+                }
+                UserIdentificationCodePhoto photo = new UserIdentificationCodePhoto() { Name = user.Email + "IdentificationCodePhoto", 
+                    Photo = img};
+                user.IdentificationCodePhoto.Add(photo);
+                _context.Users.Update(user);
+                _context.SaveChanges();
+            }
+            return RedirectToAction("Cabinet");
+        }
+        [Authorize]
+        [HttpPost]
+        public IActionResult DeleteIdentificationCodePhoto(int id)
+        {
+            var photo = _dbContext.UserIdentificationCodePhoto.Where(p => p.Id == id).FirstOrDefault();
+            if (photo != null)
+            {
+                _dbContext.UserIdentificationCodePhoto.Remove(photo);
                 _dbContext.SaveChanges();
 
             }

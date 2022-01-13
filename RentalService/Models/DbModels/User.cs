@@ -14,6 +14,6 @@ namespace RentalService.Models
         public List<RentsHistory>? PastLeases { get; set; }
         public List<UserPassportPhoto> PassportPhotos { get; set; } = new List<UserPassportPhoto>();
         public List<UserDriverLicensePhoto> DriverLicensePhotos { get; set; } = new List<UserDriverLicensePhoto>();
-        public UserIdentificationCodePhoto? IdentificationCodePhoto { get; set; }
+        public List<UserIdentificationCodePhoto> IdentificationCodePhoto { get; set; } = new List<UserIdentificationCodePhoto>();
     }
 }
