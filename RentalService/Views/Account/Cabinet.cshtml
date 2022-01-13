@@ -13,7 +13,7 @@ else
 }
 <p><strong>Passport photo:</strong></p>
 <table class="table">
-@if(Model.PassportPhoto.Count > 0)
+@if(Model.PassportPhoto.Any())
 {
     var i = 1;
     foreach (var photo in Model.PassportPhoto)
@@ -43,7 +43,7 @@ else
 }
 <p><strong>Drivers license photo:</strong></p>
 <table class="table">
-@if(Model.DriversLicensePhoto.Count > 0)
+@if(Model.DriversLicensePhoto.Any())
 {
     var i = 1;
     foreach (var photo in Model.DriversLicensePhoto)
@@ -72,7 +72,7 @@ else
     </form>
 }
 <p><strong>Identification code photo:</strong></p>
-@if(Model.IdentificationCodePhoto.Count > 0)
+@if(Model.IdentificationCodePhoto.Any())
 {
     var i = 1;
     foreach (var photo in Model.IdentificationCodePhoto)
@@ -87,7 +87,7 @@ else
             </tr>
     }
 }
-@if (Model.IdentificationCodePhoto.Count < 1)
+@if (!Model.IdentificationCodePhoto.Any())
 {
     <form asp-action="AddIdentificationCodePhoto" asp-controller="Account" method="post" enctype="multipart/form-data">
         <p>

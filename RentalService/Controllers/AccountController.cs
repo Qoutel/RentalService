@@ -85,7 +85,7 @@ namespace RentalService.Controllers
         [HttpGet]
         public async Task<IActionResult> Cabinet()
         {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string userId = _userManager.GetUserId(User);
             User user = await _userManager.FindByIdAsync(userId);
             var passportPhoto = _dbContext.UserPassportPhoto.Where(x => x.Name == user.Email + "PassportPhoto").ToList();
             var driverLicensePhoto = _dbContext.UserDriverLicensePhoto.Where(x => x.Name == user.Email + "DriverLicensePhoto").ToList();
@@ -98,7 +98,7 @@ namespace RentalService.Controllers
         [HttpGet]
         public async Task<IActionResult> ChangePassword()
         {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string userId = _userManager.GetUserId(User);
             User user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
@@ -147,7 +147,7 @@ namespace RentalService.Controllers
         {
             if (model.Photo != null)
             {
-                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                string userId = _userManager.GetUserId(User);
                 User user = await _userManager.FindByIdAsync(userId);
                 byte[] img = null;
                 using (var reader = new BinaryReader(model.Photo.OpenReadStream()))
@@ -180,7 +180,7 @@ namespace RentalService.Controllers
         {
             if (model.Photo != null)
             {
-                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                string userId = _userManager.GetUserId(User);
                 User user = await _userManager.FindByIdAsync(userId);
                 byte[] img = null;
                 using (var reader = new BinaryReader(model.Photo.OpenReadStream()))
@@ -214,7 +214,7 @@ namespace RentalService.Controllers
         {
             if (model.Photo != null)
             {
-                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                string userId = _userManager.GetUserId(User);
                 User user = await _userManager.FindByIdAsync(userId);
                 byte[] img = null;
                 using (var reader = new BinaryReader(model.Photo.OpenReadStream()))
