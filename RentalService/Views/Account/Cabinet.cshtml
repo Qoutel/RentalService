@@ -1,5 +1,10 @@
 ﻿@model RentalService.ViewModels.CabinetViewModel
 <h2>@User.Identity.Name personal area</h2><br />
+
+@if (Model.UserRoles.Contains("admin"))
+{
+    <a class="btn btn-warning" asp-action="Index" asp-controller="AdminPanel">ADMIN PANEL</a>
+}
 <p><strong>First Name:</strong> @Model.User.FirstName</p>
 <p><strong>Last Name:</strong> @Model.User.LastName</p>
 <p><strong>Adress:</strong> @Model.User.Adress</p>

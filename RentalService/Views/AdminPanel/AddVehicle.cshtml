@@ -1,0 +1,27 @@
+﻿@model RentalService.ViewModels.AddVehicleViewModel
+
+<h2>Add vehicle for rental</h2>
+
+<form asp-action="AddVehicle" asp-controller="AdminPanel" method="post">
+    <div class="form-group">
+        <label asp-for="Vehicle.Name" class="control-label">Name</label>
+        <input type="text" asp-for="Vehicle.Name" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Vehicle.YearOfManufactured" class="control-label">Year of manufactured</label>
+        <input type="number" asp-for="Vehicle.YearOfManufactured" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Vehicle.Mileage" class="control-label">Mileage</label>
+        <input type="number" asp-for="Vehicle.Mileage" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Vehicle.PricePerDay" class="control-label">Price per day</label>
+        <input type="number" asp-for="Vehicle.PricePerDay" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Vehicle.VehicleType" class="control-label">Vehicle type</label>
+        <select name="name" asp-items="Model.VehicleType" class="form-control"></select>
+        <input type="number" asp-for="Vehicle.VehicleType" class="form-control" />
+    </div>
+</form>

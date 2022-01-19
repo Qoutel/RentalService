@@ -87,11 +87,15 @@ namespace RentalService.Controllers
         {
             string userId = _userManager.GetUserId(User);
             User user = await _userManager.FindByIdAsync(userId);
-            var passportPhoto = _dbContext.UserPassportPhoto.Where(x => x.Name == user.Email + "PassportPhoto").ToList();
-            var driverLicensePhoto = _dbContext.UserDriverLicensePhoto.Where(x => x.Name == user.Email + "DriverLicensePhoto").ToList();
-            var identificationCodePhoto = _dbContext.UserIdentificationCodePhoto.Where(x => x.Name == user.Email + "IdentificationCodePhoto").ToList();
+            string passportPhotoName = user.Email + "PassportPhoto";
+            string driverLicensePhotoName = user.Email + "DriverLicensePhoto";
+            string identificationCodePhotoName = user.Email + "IdentificationCodePhoto";
+            var passportPhoto = _dbContext.UserPassportPhoto.Where(x => x.Name == passportPhotoName).ToList();
+            var driverLicensePhoto = _dbContext.UserDriverLicensePhoto.Where(x => x.Name == driverLicensePhotoName).ToList();
+            var identificationCodePhoto = _dbContext.UserIdentificationCodePhoto.Where(x => x.Name == identificationCodePhotoName).ToList();
+            var userRoles = await _userManager.GetRolesAsync(user);
             CabinetViewModel model = new CabinetViewModel() { PassportPhoto = passportPhoto, User = user, 
-                DriversLicensePhoto = driverLicensePhoto, IdentificationCodePhoto = identificationCodePhoto};
+                DriversLicensePhoto = driverLicensePhoto, IdentificationCodePhoto = identificationCodePhoto, UserRoles = userRoles};
             return View(model);
         }
         [Authorize]

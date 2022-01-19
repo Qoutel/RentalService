@@ -8,5 +8,6 @@ namespace RentalService.ViewModels
         public List<UserPassportPhoto> PassportPhoto { get; set; } = new List<UserPassportPhoto>();
         public List<UserDriverLicensePhoto> DriversLicensePhoto { get; set; } = new List<UserDriverLicensePhoto>();
         public List<UserIdentificationCodePhoto> IdentificationCodePhoto { get; set; } = new List<UserIdentificationCodePhoto>();
+        public IList<string> UserRoles { get; set; } = new List<string>();
     }
 }
