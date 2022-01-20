@@ -25,8 +25,7 @@ namespace RentalService
                     var userManager = services.GetRequiredService<UserManager<User>>();
                     var rolesManager = services.GetRequiredService<RoleManager<IdentityRole>>();
                     var dbContext = services.GetRequiredService<ApplicationDbContext>();
-                    var context = services.GetRequiredService<ApplicationContext>();
-                    await DbInitializer.InitializeAsync(userManager, rolesManager, context, dbContext);
+                    await DbInitializer.InitializeAsync(userManager, rolesManager, dbContext);
                 }
                 catch (Exception ex)
                 {

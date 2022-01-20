@@ -2,9 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 namespace RentalService.Models
 {
-    public class ApplicationContext: IdentityDbContext<User>
+    public class IdentityContext: IdentityDbContext<User>
     {
-        public ApplicationContext(DbContextOptions<ApplicationContext> options)
+        public IdentityContext(DbContextOptions<IdentityContext> options)
             : base(options)
         {
             Database.EnsureCreated();

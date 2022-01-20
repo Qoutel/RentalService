@@ -19,10 +19,6 @@ namespace RentalService.Models
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-            Database.EnsureCreated();
-        }
-        public ApplicationDbContext()
-        {
         }
     }
 }

@@ -5,9 +5,8 @@ namespace RentalService.Models
 {
     public class DbInitializer
     {
-        public static async Task InitializeAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, ApplicationContext context, ApplicationDbContext dbContext)
+        public static async Task InitializeAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, ApplicationDbContext dbContext)
         {
-            ApplicationDbContext dbc = new ApplicationDbContext();
             string adminEmail = "admin@gmail.com";
             string password = "Admin1@";
            
@@ -29,18 +28,58 @@ namespace RentalService.Models
                     await userManager.AddToRoleAsync(admin, "admin");
                 }
             }
-            FuelType diesel = new FuelType() { Id = 1, Name = "Diesel" };
-            FuelType gasoline = new FuelType() { Id = 2, Name = "Gasoline" };
-            FuelType electric = new FuelType() { Id = 3, Name = "Electric" };
-            FuelType hybridElectricGasoline = new FuelType() { Id = 4, Name = "Hybrid electric" };
-            dbContext.FuelType.AddRange(diesel, gasoline, electric, hybridElectricGasoline);
-            dbContext.SaveChanges();
+            if (!dbContext.FuelType.Any())
+            {
+                FuelType diesel = new FuelType() { Name = "Diesel" };
+                FuelType gasoline = new FuelType() { Name = "Gasoline" };
+                FuelType electric = new FuelType() { Name = "Electric" };
+                FuelType hybridElectricGasoline = new FuelType() { Name = "Hybrid electric" };
+                dbContext.FuelType.AddRange(diesel, gasoline, electric, hybridElectricGasoline);
+                dbContext.SaveChanges();
+            }
             if (!dbContext.Location.Any())
             {
                 Location borispol = new Location() { Name = "Kyiv Boryspil International Airport", Adress = "Airport Boryspil, 08307 Boryspil 7, Kyiv Region, Ukraine" };
                 Location sikorsky = new Location() { Name = "Kyiv Igor Sikorsky International Airport", Adress = "Vulytsya Medova, 2, Kyiv, Ukraine, 03048" };
                 Location stoyanka = new Location() { Name = "Stoyanka Aeroport Kyiv Zhulyany", Adress = "Povitroflots'kyi Ave, 77, Kyiv, Ukraine, 02000" };
                 dbContext.Location.AddRange(borispol, sikorsky, stoyanka);
+                dbContext.SaveChanges();
+            }
+            if (!dbContext.VehicleType.Any())
+            {
+                VehicleType car = new VehicleType() { Name = "Car" };
+                VehicleType moto = new VehicleType() { Name = "Moto" };
+                dbContext.VehicleType.AddRange(car, moto);
+                dbContext.SaveChanges();
+            }
+            if (!dbContext.VehicleClassification.Any())
+            {
+                int carId = dbContext.VehicleType.Where(name => name.Name == "Car").First().Id;
+                int motoId = dbContext.VehicleType.Where(name => name.Name == "Moto").First().Id;
+                VehicleClassification sedan = new VehicleClassification() { Name = "Sedan", VehicleTypeId = carId };
+                VehicleClassification coupe = new VehicleClassification() { Name = "Coupe", VehicleTypeId = carId };
+                VehicleClassification sportsCar = new VehicleClassification() { Name = "Sports car", VehicleTypeId = carId };
+                VehicleClassification stationWagon = new VehicleClassification() { Name = "Station wagon", VehicleTypeId = carId };
+                VehicleClassification hatchback = new VehicleClassification() { Name = "Hatchback", VehicleTypeId = carId };
+                VehicleClassification cabriolet = new VehicleClassification() { Name = "Cabriolet", VehicleTypeId = carId };
+                VehicleClassification suv = new VehicleClassification() { Name = "Sports-utility vehicle", VehicleTypeId = carId };
+                VehicleClassification minivan = new VehicleClassification() { Name = "Minivan", VehicleTypeId = carId };
+                VehicleClassification limousine = new VehicleClassification() { Name = "Limousine", VehicleTypeId = carId };
+                VehicleClassification roadster = new VehicleClassification() { Name = "Roadster", VehicleTypeId = carId };
+                VehicleClassification pickupTrack = new VehicleClassification() { Name = "Pickup track", VehicleTypeId = carId };
+                VehicleClassification microcar = new VehicleClassification() { Name = "Microcar", VehicleTypeId = carId };
+                VehicleClassification standart = new VehicleClassification() { Name = "Standart", VehicleTypeId = motoId };
+                VehicleClassification cruiser = new VehicleClassification() { Name = "Cruiser", VehicleTypeId = motoId };
+                VehicleClassification sportBike = new VehicleClassification() { Name = "Sport bike", VehicleTypeId = motoId };
+                VehicleClassification touring = new VehicleClassification() { Name = "Touring", VehicleTypeId = motoId };
+                VehicleClassification sportTouring = new VehicleClassification() { Name = "Sport touring", VehicleTypeId = motoId };
+                VehicleClassification scooter = new VehicleClassification() { Name = "Scooter", VehicleTypeId = motoId };
+                VehicleClassification moped = new VehicleClassification() { Name = "Moped", VehicleTypeId = motoId };
+                VehicleClassification offRoad = new VehicleClassification() { Name = "Off-road", VehicleTypeId = motoId };
+                VehicleClassification dualSport = new VehicleClassification() { Name = "Dual sport", VehicleTypeId = motoId };
+                dbContext.VehicleClassification.AddRange(sedan, coupe, sportsCar, stationWagon, hatchback, cabriolet, suv, minivan, limousine, roadster, pickupTrack, microcar,
+                    standart, cruiser, sportBike, touring, sportTouring, scooter, moped, offRoad, dualSport);
+                dbContext.SaveChanges();
             }
             if (!dbContext.AdditionalService.Any())
             {
@@ -50,6 +89,7 @@ namespace RentalService.Models
                 AdditionalService dvr = new AdditionalService() { Name = "Video recorder", Price = 377 };
                 AdditionalService personalDriver = new AdditionalService() { Name = "Personal driver", Price = 1814 };
                 dbContext.AdditionalService.AddRange(babySeat, gps, pickUp, dvr, personalDriver);
+                dbContext.SaveChanges();
             }
         }
     }

@@ -12,11 +12,11 @@ namespace RentalService.Controllers
 {
     public class AccountController : Controller
     {
-        ApplicationContext _context;
-        ApplicationDbContext _dbContext;
+        readonly IdentityContext _context;
+        readonly ApplicationDbContext _dbContext;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        public AccountController (UserManager<User> userManager, SignInManager<User> signInManager, ApplicationContext context, ApplicationDbContext dbContext)
+        public AccountController (UserManager<User> userManager, SignInManager<User> signInManager, IdentityContext context, ApplicationDbContext dbContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
