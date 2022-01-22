@@ -1,0 +1,41 @@
+﻿@using RentalService.ViewModels
+@model VehicleManagmentViewModel
+
+<h2>Vehicle list</h2>
+
+<form method="get">
+    <label>Vehicle type:
+        <select name="vehicleTypeId" asp-items="Model.VehicleTypes" class="form-control"></select>
+    </label>
+    <label style="margin-left: 50px;">
+        Brand:
+        <select name="branId" asp-items="Model.VehicleBrands" class="form-control"></select>
+    </label>
+    <label style="margin-left: 50px;">
+        Fuel type:
+        <select name="fuelTypeId" asp-items="Model.FuelTypes" class="form-control"></select>
+    </label>
+    <label style="margin-left: 50px;">
+        Location:
+        <select name="locationId" asp-items="Model.Locations" class="form-control"></select>
+    </label>
+    <label><input type="submit" /></label>
+</form>
+<br />
+<a class="btn btn-primary" asp-action="AddVehicle" asp-controller="AdminPanel">Add vehicle</a>
+<table class="table">
+@foreach (Vehicle v in Model.Vehicles)
+{
+   <tr>
+       <td>@v.Brand?.Name @v.Name</td>
+       <td>@v.VehicleClass?.Name</td>
+       <td>@v.FuelType?.Name</td>
+       <td>@v.PricePerDay</td>
+       <td>@v.Location?.Name</td>
+       <td><form asp-action="VehicleManagment" asp-route-vehicleId="@v.Id">
+                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+           </form>
+       </td>
+   </tr>
+}
+</table>
