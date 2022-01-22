@@ -91,6 +91,14 @@ namespace RentalService.Models
                 dbContext.AdditionalService.AddRange(babySeat, gps, pickUp, dvr, personalDriver);
                 dbContext.SaveChanges();
             }
+            if (!dbContext.VehicleBrand.Any())
+            {
+                VehicleBrand audi = new VehicleBrand() { Name = "Audi"};
+                VehicleBrand bmw = new VehicleBrand() { Name = "BMW" };
+                VehicleBrand renault = new VehicleBrand() { Name = "Renault" };
+                dbContext.VehicleBrand.AddRange(audi, bmw, renault);
+                dbContext.SaveChanges();
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ namespace RentalService.Models
         public DbSet<VehicleClassification> VehicleClassification { get; set; }
         public DbSet<VehiclePhoto> VehiclePhoto { get; set;}
         public DbSet<VehicleType> VehicleType { get; set; }
+        public DbSet<VehicleBrand> VehicleBrand { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

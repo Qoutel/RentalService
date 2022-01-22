@@ -1,27 +1,49 @@
-﻿@model RentalService.ViewModels.AddVehicleViewModel
+﻿@model RentalService.Models.Vehicle
 
 <h2>Add vehicle for rental</h2>
 
 <form asp-action="AddVehicle" asp-controller="AdminPanel" method="post">
     <div class="form-group">
-        <label asp-for="Vehicle.Name" class="control-label">Name</label>
-        <input type="text" asp-for="Vehicle.Name" class="form-control" />
+        <label asp-for="Name" class="control-label">Model</label>
+        <input type="text" asp-for="Name" class="form-control" />
     </div>
     <div class="form-group">
-        <label asp-for="Vehicle.YearOfManufactured" class="control-label">Year of manufactured</label>
-        <input type="number" asp-for="Vehicle.YearOfManufactured" class="form-control" />
+        <label asp-for="YearOfManufactured" class="control-label">Year of manufactured</label>
+        <input type="number" asp-for="YearOfManufactured" class="form-control" />
     </div>
     <div class="form-group">
-        <label asp-for="Vehicle.Mileage" class="control-label">Mileage</label>
-        <input type="number" asp-for="Vehicle.Mileage" class="form-control" />
+        <label asp-for="Mileage" class="control-label">Mileage</label>
+        <input type="number" asp-for="Mileage" class="form-control" />
     </div>
     <div class="form-group">
-        <label asp-for="Vehicle.PricePerDay" class="control-label">Price per day</label>
-        <input type="number" asp-for="Vehicle.PricePerDay" class="form-control" />
+        <label asp-for="PricePerDay" class="control-label">Price per day</label>
+        <input type="number" asp-for="PricePerDay" class="form-control" />
+    </div>
+    <div class="form-group">Fuel type<br />
+         <label asp-for="FuelType" class="control-label">Model</label>
+     @Html.DropDownListFor(model => model.FuelType, ViewBag.FuelType as SelectList)
+    </div>
+    <div class="form-group">Vehicle type<br />
+    @Html.DropDownListFor(model => model.VehicleType, ViewBag.VehicleType as SelectList)
     </div>
     <div class="form-group">
-        <label asp-for="Vehicle.VehicleType" class="control-label">Vehicle type</label>
-        <select name="name" asp-items="Model.VehicleType" class="form-control"></select>
-        <input type="number" asp-for="Vehicle.VehicleType" class="form-control" />
+        <label asp-for="NumberOfSeats" class="control-label">Number of seats</label>
+        <input type="number" asp-for="NumberOfSeats" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Automatic transmission</label><br />
+        <input asp-for="AutomaticTransmission" />
+    </div>
+    <div class="form-group">Location<br />
+     @Html.DropDownListFor(model => model.Location, ViewBag.Location as SelectList)
+    </div><br />
+    <div class="form-group">Vehicle class<br />
+     @Html.DropDownListFor(model => model.VehicleClass, ViewBag.VehicleClass as SelectList)
+    </div><br />
+    <div class="form-group">Brand<br />
+     @Html.DropDownListFor(model => model.Brand, ViewBag.VehicleBrand as SelectList)
+    </div><br />
+    <div class="form-group">
+        <input type="submit" value="Add" />
     </div>
 </form>
