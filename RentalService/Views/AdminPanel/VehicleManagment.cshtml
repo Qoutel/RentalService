@@ -19,7 +19,7 @@
         Location:
         <select name="locationId" asp-items="Model.Locations" class="form-control"></select>
     </label>
-    <label><input type="submit" /></label>
+    <label><input type="submit" value="Filter"/></label>
 </form>
 <br />
 <a class="btn btn-primary" asp-action="AddVehicle" asp-controller="AdminPanel">Add vehicle</a>
@@ -27,11 +27,17 @@
 @foreach (Vehicle v in Model.Vehicles)
 {
    <tr>
+       <td>@v.VehicleType.Name</td>
        <td>@v.Brand?.Name @v.Name</td>
        <td>@v.VehicleClass?.Name</td>
        <td>@v.FuelType?.Name</td>
        <td>@v.PricePerDay</td>
        <td>@v.Location?.Name</td>
+       <td><form asp-action="VehicleInfo" asp-route-vehicleId="@v.Id">
+                <button type="submit" class="btn btn-sm btn-info">Detail information</button>
+           </form>
+       </td>
+       <td><a class="btn btn-primary" asp-action="VehicleEdit" asp-route-vehicleId="@v.Id">Edit</a></td>
        <td><form asp-action="VehicleManagment" asp-route-vehicleId="@v.Id">
                 <button type="submit" class="btn btn-sm btn-danger">Delete</button>
            </form>

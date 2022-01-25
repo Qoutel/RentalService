@@ -1,0 +1,50 @@
+﻿@model RentalService.Models.Vehicle
+
+<h2>@Model.Brand.Name @Model.Name @Model.YearOfManufactured @Model.VehicleType.Name</h2><br />
+
+<p><b>Vehicle type:</b> @Model.VehicleType.Name</p>
+<p><b>Brand:</b> @Model.Brand.Name</p>
+<p><b>Model:</b> @Model.Name</p>
+<p><b>Year of manufactured:</b> @Model.YearOfManufactured</p>
+<p><b>Mileage:</b> @Model.Mileage</p>
+<p><b>Price:</b> @Model.PricePerDay/day</p>
+@if (Model.IsAvailable)
+{
+    <p><b>Availability for rent:</b> available</p>
+}
+else
+{
+    <p><b>Availability for rent:</b> not available</p>
+}
+<p><b>Fuel type:</b> @Model.FuelType.Name</p>
+<p><b>Number of seats:</b> @Model.NumberOfSeats</p>
+@if (Model.AutomaticTransmission)
+{
+    <p><b>Automatic transmission:</b> yes</p>
+}
+else
+{
+    <p><b>Automatic transmission:</b> no</p>
+}
+<p><b>Current location:</b> @Model.Location.Name</p>
+<table class="table">
+@if(Model.Photos.Any())
+{
+    var i = 1;
+    foreach (var photo in Model.Photos)
+    {
+            <tr>
+                <td>Photo - @(i++)
+                    <form asp-action="DeleteVehiclePhoto" asp-route-photoId="@photo.Id" asp-route-id="@Model.Id">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete photo</button>
+                    </form>
+                </td>
+                <td><img style='width:240px; height:180px;' src="data:image/jpeg;base64,@(Convert.ToBase64String(photo.Photo))" /></td>
+            </tr>
+    }
+}
+</table>
+
+<a class="btn btn-primary" asp-action="VehicleEdit" asp-controller="AdminPanel">Edit</a>
+<a class="btn btn-danger" asp-action="VehicleManagment" asp-controller="AdminPanel" asp-route-vehicleId="@Model.Id">Delete</a>
+

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace RentalService.Controllers
 {
+    [Authorize(Roles = "admin")]
     public class AdminPanelController : Controller
     {
         readonly IdentityContext _context;
@@ -26,11 +27,9 @@ namespace RentalService.Controllers
         {
             return View();
         }
-        [Authorize(Roles = "admin")]
         [HttpGet]
         public IActionResult AddVehicle()
         {
-            var model = new AddVehicleViewModel();
             SelectList fuelType = new SelectList(_dbContext.FuelType, "Id", "Name");
             ViewBag.FuelTypes = fuelType;
             SelectList vehicleType = new SelectList(_dbContext.VehicleType, "Id", "Name");
@@ -43,31 +42,44 @@ namespace RentalService.Controllers
             ViewBag.VehicleBrand = vehicleBrand;
             return View();
         }
-        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> AddVehicle(AddVehicleViewModel model)
         {
-            FuelType fuelType = _dbContext.FuelType.Where(ft => ft.Id == model.FuelTypeId).First();
-            VehicleType vehicleType = _dbContext.VehicleType.Where(vt => vt.Id == model.VehicleTypeId).First();
-            Location location = _dbContext.Location.Where(l => l.Id == model.LocationId).First();
-            VehicleClassification vehicleClass = _dbContext.VehicleClassification.Where(vc => vc.Id == model.VehicleClassId).First();
-            VehicleBrand brand = _dbContext.VehicleBrand.Where(vb => vb.Id == model.BrandId).First();
-            byte[] img = null;
-            using (var reader = new BinaryReader(model.Photo.OpenReadStream()))
+            if (ModelState.IsValid)
             {
-                img = reader.ReadBytes((int)model.Photo.Length);
+                FuelType fuelType = _dbContext.FuelType.Where(ft => ft.Id == model.FuelTypeId).First();
+                VehicleType vehicleType = _dbContext.VehicleType.Where(vt => vt.Id == model.VehicleTypeId).First();
+                Location location = _dbContext.Location.Where(l => l.Id == model.LocationId).First();
+                VehicleClassification vehicleClass = _dbContext.VehicleClassification.Where(vc => vc.Id == model.VehicleClassId).First();
+                VehicleBrand brand = _dbContext.VehicleBrand.Where(vb => vb.Id == model.BrandId).First();
+                byte[] img = null;
+                using (var reader = new BinaryReader(model.Photo.OpenReadStream()))
+                {
+                    img = reader.ReadBytes((int)model.Photo.Length);
+                }
+                VehiclePhoto userPassportPhoto = new VehiclePhoto() { Name = brand.Name + "_" + model.Name, Photo = img };
+                Vehicle vehicle = new Vehicle()
+                {
+                    Name = model.Name,
+                    YearOfManufactured = model.YearOfManufactured,
+                    Mileage = model.Mileage,
+                    PricePerDay = model.PricePerDay,
+                    FuelType = fuelType,
+                    VehicleType = vehicleType,
+                    NumberOfSeats = model.NumberOfSeats,
+                    AutomaticTransmission = model.AutomaticTransmission,
+                    Location = location,
+                    VehicleClass = vehicleClass,
+                    Brand = brand
+                };
+                vehicle.Photos.Add(userPassportPhoto);
+                await _dbContext.Vehicle.AddAsync(vehicle);
+                await _dbContext.SaveChangesAsync();
+                return RedirectToAction("VehicleManagment");
             }
-            VehiclePhoto userPassportPhoto = new VehiclePhoto() { Name = brand.Name + "_" + model.Name, Photo = img };
-            Vehicle vehicle = new Vehicle() { Name = model.Name, YearOfManufactured = model.YearOfManufactured,
-                Mileage = model.Mileage, PricePerDay = model.PricePerDay, FuelType = fuelType,
-                VehicleType = vehicleType, NumberOfSeats = model.NumberOfSeats, AutomaticTransmission = model.AutomaticTransmission,
-                Location = location, VehicleClass = vehicleClass, Brand = brand };
-            vehicle.Photos.Add(userPassportPhoto);
-            await _dbContext.Vehicle.AddAsync(vehicle);
-            await _dbContext.SaveChangesAsync();
-            return RedirectToAction("VehicleManagment");
+            return RedirectToAction("AddVehicle");
         }
-        [Authorize(Roles = "admin")]
+        
         public IActionResult VehicleManagment(int? vehicleTypeId, int? branId, int? fuelTypeId, int? locationId, int? vehicleId)
         {
             if (vehicleId != null)
@@ -113,6 +125,96 @@ namespace RentalService.Controllers
             }
             model.Vehicles = vehicles;
             return View(model);
+        }
+        public async Task<IActionResult> VehicleInfo(int vehicleId)
+        {
+            var vehicle = await _dbContext.Vehicle.Include(m => m.Brand).Include(m => m.VehicleType)
+                .Include(m => m.VehicleClass).Include(m => m.Location).Include(m => m.FuelType).Include(m => m.Photos)
+                .Where(v => v.Id == vehicleId).FirstOrDefaultAsync();
+            if (vehicle != null)
+            {
+                return View(vehicle);
+            }
+            return RedirectToAction("VehicleManagment");
+        }
+        public async Task<IActionResult> VehicleEdit(int vehicleId)
+        {
+            var vehicle = await _dbContext.Vehicle.Include(m => m.Brand).Include(m => m.VehicleType)
+                .Include(m => m.VehicleClass).Include(m => m.Location).Include(m => m.FuelType).Where(v => v.Id == vehicleId).FirstOrDefaultAsync();
+            if (vehicle != null)
+            {
+                SelectList fuelType = new SelectList(_dbContext.FuelType, "Id", "Name");
+                ViewBag.FuelTypes = fuelType;
+                SelectList vehicleType = new SelectList(_dbContext.VehicleType, "Id", "Name");
+                ViewBag.VehicleType = vehicleType;
+                SelectList location = new SelectList(_dbContext.Location, "Id", "Name");
+                ViewBag.Location = location;
+                SelectList vehicleClass = new SelectList(_dbContext.VehicleClassification, "Id", "Name");
+                ViewBag.VehicleClass = vehicleClass;
+                SelectList vehicleBrand = new SelectList(_dbContext.VehicleBrand, "Id", "Name");
+                ViewBag.VehicleBrand = vehicleBrand;
+                EditVehicleViewModel model = new EditVehicleViewModel() { Name = vehicle.Name, Id = vehicleId, YearOfManufactured = vehicle.YearOfManufactured,
+                Mileage = vehicle.Mileage, PricePerDay = vehicle.PricePerDay, FuelTypeId = vehicle.FuelType.Id, VehicleTypeId = vehicle.VehicleType.Id,
+                NumberOfSeats = vehicle.NumberOfSeats, AutomaticTransmission = vehicle.AutomaticTransmission, LocationId = vehicle.Location.Id,
+                VehicleClassId = vehicle.VehicleClass.Id, BrandId = vehicle.Brand.Id};
+                return View(model);
+            }
+            return RedirectToAction("VehicleManagment");
+        }
+        [HttpPost]
+        public async Task<IActionResult> VehicleEdit (EditVehicleViewModel vehicle)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = _dbContext.Vehicle.Where(v => v.Id == vehicle.Id).FirstOrDefault();
+                if (result != null)
+                {
+                    FuelType fuelType = _dbContext.FuelType.Where(ft => ft.Id == vehicle.FuelTypeId).First();
+                    VehicleType vehicleType = _dbContext.VehicleType.Where(vt => vt.Id == vehicle.VehicleTypeId).First();
+                    Location location = _dbContext.Location.Where(l => l.Id == vehicle.LocationId).First();
+                    VehicleClassification vehicleClass = _dbContext.VehicleClassification.Where(vc => vc.Id == vehicle.VehicleClassId).First();
+                    VehicleBrand brand = _dbContext.VehicleBrand.Where(vb => vb.Id == vehicle.BrandId).First();
+                    result.Name = vehicle.Name;
+                    result.YearOfManufactured = vehicle.YearOfManufactured;
+                    result.Mileage = vehicle.Mileage;
+                    result.PricePerDay = vehicle.PricePerDay;
+                    result.FuelType = fuelType;
+                    result.VehicleType = vehicleType;
+                    result.NumberOfSeats = vehicle.NumberOfSeats;
+                    result.AutomaticTransmission = vehicle.AutomaticTransmission;
+                    result.Location = location;
+                    result.VehicleClass = vehicleClass;
+                    result.Brand = brand;
+                    if (vehicle.Photo != null)
+                    {
+                        byte[] img = null;
+                        using (var reader = new BinaryReader(vehicle.Photo.OpenReadStream()))
+                        {
+                            img = reader.ReadBytes((int)vehicle.Photo.Length);
+                        }
+                        VehiclePhoto photo = new VehiclePhoto() { Name = brand.Name + "_" + vehicle.Name, Photo = img };
+                        result.Photos.Add(photo);
+                    }
+                    _dbContext.Vehicle.Update(result);
+                    await _dbContext.SaveChangesAsync();
+                    return RedirectToAction("VehicleManagment");
+                }
+            }
+            return RedirectToAction("VehicleEdit", new {vehicleId = vehicle.Id});
+        }
+        [HttpPost]
+        public IActionResult DeleteVehiclePhoto (int? photoId, int? id)
+        {
+            if (photoId != null && photoId > 0)
+            {
+                var photo = _dbContext.VehiclePhoto.Where(p => p.Id == photoId).FirstOrDefault();
+                if (photo != null)
+                {
+                    _dbContext.VehiclePhoto.Remove(photo);
+                    _dbContext.SaveChanges();
+                }
+            }
+            return RedirectToAction("VehicleInfo", new { vehicleId = id });
         }
     }
 }
