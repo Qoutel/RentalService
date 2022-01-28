@@ -1,0 +1,13 @@
+﻿@model IEnumerable<RentalService.Models.FuelType>
+
+<h2>Fuel type list</h2>
+
+<a class="btn btn-primary" asp-action="AddFuelType" asp-controller="AdminPanel">Add fuel type</a>
+<table class="table">
+@foreach (var fuelType in Model)
+{
+   <tr>
+       <td>@fuelType.Name</td>
+   </tr>
+}
+</table>

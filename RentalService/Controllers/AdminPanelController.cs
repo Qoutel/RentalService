@@ -79,7 +79,7 @@ namespace RentalService.Controllers
             }
             return RedirectToAction("AddVehicle");
         }
-        
+
         public IActionResult VehicleManagment(int? vehicleTypeId, int? branId, int? fuelTypeId, int? locationId, int? vehicleId)
         {
             if (vehicleId != null)
@@ -106,7 +106,7 @@ namespace RentalService.Controllers
             List<VehicleBrandModel> vbm = vehicleBrands.Select(s => new VehicleBrandModel { Id = s.Id, Name = s.Name }).ToList();
             vbm.Insert(0, new VehicleBrandModel { Id = 0, Name = "All" });
             VehicleManagmentViewModel model = new VehicleManagmentViewModel { Vehicles = vehicles, VehicleTypes = new SelectList(vtm, "Id", "Name"),
-                FuelTypes = new SelectList (ftm, "Id", "Name"), Locations = new SelectList(lm,"Id","Name"), VehicleBrands = new SelectList(vbm, "Id", "Name") };
+                FuelTypes = new SelectList(ftm, "Id", "Name"), Locations = new SelectList(lm, "Id", "Name"), VehicleBrands = new SelectList(vbm, "Id", "Name") };
             if (vehicleTypeId != null && vehicleTypeId > 0)
             {
                 vehicles = vehicles.Where(v => v.VehicleType.Id == vehicleTypeId).ToList();
@@ -154,15 +154,15 @@ namespace RentalService.Controllers
                 SelectList vehicleBrand = new SelectList(_dbContext.VehicleBrand, "Id", "Name");
                 ViewBag.VehicleBrand = vehicleBrand;
                 EditVehicleViewModel model = new EditVehicleViewModel() { Name = vehicle.Name, Id = vehicleId, YearOfManufactured = vehicle.YearOfManufactured,
-                Mileage = vehicle.Mileage, PricePerDay = vehicle.PricePerDay, FuelTypeId = vehicle.FuelType.Id, VehicleTypeId = vehicle.VehicleType.Id,
-                NumberOfSeats = vehicle.NumberOfSeats, AutomaticTransmission = vehicle.AutomaticTransmission, LocationId = vehicle.Location.Id,
-                VehicleClassId = vehicle.VehicleClass.Id, BrandId = vehicle.Brand.Id};
+                    Mileage = vehicle.Mileage, PricePerDay = vehicle.PricePerDay, FuelTypeId = vehicle.FuelType.Id, VehicleTypeId = vehicle.VehicleType.Id,
+                    NumberOfSeats = vehicle.NumberOfSeats, AutomaticTransmission = vehicle.AutomaticTransmission, LocationId = vehicle.Location.Id,
+                    VehicleClassId = vehicle.VehicleClass.Id, BrandId = vehicle.Brand.Id };
                 return View(model);
             }
             return RedirectToAction("VehicleManagment");
         }
         [HttpPost]
-        public async Task<IActionResult> VehicleEdit (EditVehicleViewModel vehicle)
+        public async Task<IActionResult> VehicleEdit(EditVehicleViewModel vehicle)
         {
             if (ModelState.IsValid)
             {
@@ -200,10 +200,10 @@ namespace RentalService.Controllers
                     return RedirectToAction("VehicleManagment");
                 }
             }
-            return RedirectToAction("VehicleEdit", new {vehicleId = vehicle.Id});
+            return RedirectToAction("VehicleEdit", new { vehicleId = vehicle.Id });
         }
         [HttpPost]
-        public IActionResult DeleteVehiclePhoto (int? photoId, int? id)
+        public IActionResult DeleteVehiclePhoto(int? photoId, int? id)
         {
             if (photoId != null && photoId > 0)
             {
@@ -215,6 +215,170 @@ namespace RentalService.Controllers
                 }
             }
             return RedirectToAction("VehicleInfo", new { vehicleId = id });
+        }
+        public async Task<IActionResult> BrandList()
+        {
+            var model = await _dbContext.VehicleBrand.ToListAsync();
+            return View(model);
+        }
+        [HttpGet]
+        public IActionResult AddVehicleBrand()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddVehicleBrand(VehicleBrand model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _dbContext.VehicleBrand.Where(b => b.Name == model.Name).FirstOrDefaultAsync();
+                if (result == null)
+                {
+                    await _dbContext.VehicleBrand.AddAsync(new VehicleBrand() { Name = model.Name });
+                    await _dbContext.SaveChangesAsync();
+                    return RedirectToAction("BrandList");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Brand already exist");
+                }
+            }
+            return View(model);
+        }
+        [HttpGet]
+        public async Task<IActionResult> VehicleClassList(int? vehicleTypeId)
+        {
+            var vehicleClasses = await _dbContext.VehicleClassification.ToListAsync();
+            if (vehicleTypeId != null && vehicleTypeId > 0)
+            {
+                vehicleClasses = vehicleClasses.Where(v => v.VehicleTypeId == vehicleTypeId).ToList();
+            }
+            var vehicleTypes = await _dbContext.VehicleType.ToListAsync();
+            List<VehicleTypeModel> vtm = vehicleTypes.Select(s => new VehicleTypeModel { Id = s.Id, Name = s.Name }).ToList();
+            vtm.Insert(0, new VehicleTypeModel { Id = 0, Name = "All" });
+            VehicleClassListViewModel model = new VehicleClassListViewModel()
+            {
+                VehicleClasses = vehicleClasses,
+                VehicleTypes = vehicleTypes,
+                VehicleTypesFilter = new SelectList(vtm, "Id", "Name"),
+            };
+            ViewBag.VehicleTypes = await _dbContext.VehicleType.ToListAsync();
+            return View(model);
+        }
+        [HttpGet]
+        public IActionResult AddVehicleClass()
+        {
+            SelectList vehicleType = new SelectList(_dbContext.VehicleType, "Id", "Name");
+            ViewBag.VehicleType = vehicleType;
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddVehicleClass(AddVehicleClassViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _dbContext.VehicleClassification.Where(c => c.Name == model.ClassName).FirstOrDefaultAsync();
+                if (result == null)
+                {
+                    VehicleClassification vehicleClassification = new VehicleClassification() { Name = model.ClassName, VehicleTypeId = model.VehicleTypeId };
+                    await _dbContext.VehicleClassification.AddAsync(vehicleClassification);
+                    await _dbContext.SaveChangesAsync();
+                    return RedirectToAction("VehicleClassList");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Class already exist");
+                }
+            }
+            SelectList vehicleType = new SelectList(_dbContext.VehicleType, "Id", "Name");
+            ViewBag.VehicleType = vehicleType;
+            return View(model);
+        }
+        public async Task<IActionResult> AdditionalServicesList()
+        {
+            var model = await _dbContext.AdditionalService.ToListAsync();
+            return View(model);
+        }
+        [HttpGet]
+        public IActionResult AddAdditionalService()
+        {
+            return View();
+        }
+        public async Task<IActionResult> AddAdditionalService(AdditionalService model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _dbContext.AdditionalService.Where(service => service.Name == model.Name).FirstOrDefaultAsync();
+                if (result == null)
+                {
+                    await _dbContext.AdditionalService.AddAsync(model);
+                    await _dbContext.SaveChangesAsync();
+                    return RedirectToAction("AdditionalServicesList");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Additional service already exist");
+                }
+            }
+            return View(model);
+        }
+        public async Task<IActionResult> LocationList()
+        {
+            var model = await _dbContext.Location.ToListAsync();
+            return View(model);
+        }
+        [HttpGet]
+        public IActionResult AddLocation()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddLocation(Location model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _dbContext.Location.Where(location => location.Name == model.Name).FirstOrDefaultAsync();
+                if (result == null)
+                {
+                    await _dbContext.Location.AddAsync(model);
+                    await _dbContext.SaveChangesAsync();
+                    return RedirectToAction("LocationList");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Location already exist");
+                }
+            }
+            return View(model);
+        }
+        public async Task<IActionResult> FuelTypeList()
+        {
+            var model = await _dbContext.FuelType.ToListAsync();
+            return View(model);
+        }
+        [HttpGet]
+        public IActionResult AddFuelType()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddFuelType(FuelType model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _dbContext.FuelType.Where(fuelType => fuelType.Name == model.Name).FirstOrDefaultAsync();
+                if (result == null)
+                {
+                    await _dbContext.FuelType.AddAsync(model);
+                    await _dbContext.SaveChangesAsync();
+                    return RedirectToAction("FuelTypeList");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Fuel type already exist");
+                }
+            }
+            return View(model);
         }
     }
 }

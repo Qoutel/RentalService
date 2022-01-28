@@ -1,0 +1,15 @@
+﻿@model RentalService.Models.FuelType
+
+<h2>Adding fuel type</h2>
+
+<form asp-action="AddFuelType" asp-controller="AdminPanel" method="post">
+    <div asp-validation-summary = "ModelOnly"></div>
+    <div class="form-group">
+        <label asp-for="Name" class="control-label">Fuel type name:</label>
+        <input type="text" asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name"></span>
+    </div><br />
+    <div class="form-group">
+        <input type="submit" value="Add fuel type" />
+    </div>
+</form>

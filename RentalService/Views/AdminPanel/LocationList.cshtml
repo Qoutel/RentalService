@@ -1,0 +1,18 @@
+﻿@model IEnumerable<RentalService.Models.Location>
+
+<h2>Location list</h2>
+
+<a class="btn btn-primary" asp-action="AddLocation" asp-controller="AdminPanel">Add location</a>
+<table class="table">
+<tr>
+    <td><b>Location name</b></td>
+    <td><b>Adress</b></td>
+</tr>
+@foreach (var location in Model)
+{
+   <tr>
+       <td>@location.Name</td>
+       <td>@location.Adress</td>
+   </tr>
+}
+</table>

@@ -8,6 +8,10 @@
         public DateTime RentStartDay { get; set; }
         public DateTime RentEndDay { get; set; }
         public decimal RentAmount { get; set; }
-        public List<AdditionalService> AdditionalServices { get; set; } = new List<AdditionalService>();
+        public ICollection<AdditionalService> AdditionalServices { get; set; }
+        public Rent()
+        {
+            AdditionalServices = new List<AdditionalService>();
+        }
     }
 }

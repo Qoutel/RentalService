@@ -1,0 +1,18 @@
+﻿@model IEnumerable<RentalService.Models.AdditionalService>
+
+<h2>Additional services list</h2>
+
+<a class="btn btn-primary" asp-action="AddAdditionalService" asp-controller="AdminPanel">Add additional Service</a>
+<table class="table">
+<tr>
+    <td><b>Service name</b></td>
+    <td><b>Price</b></td>
+</tr>
+@foreach (var service in Model)
+{
+   <tr>
+       <td>@service.Name</td>
+       <td>@service.Price</td>
+   </tr>
+}
+</table>

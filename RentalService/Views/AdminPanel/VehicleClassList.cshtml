@@ -1,0 +1,32 @@
+﻿@model RentalService.ViewModels.VehicleClassListViewModel
+
+<h2>Vehicle classification</h2>
+
+<form method="get">
+    <label>Vehicle type:
+        <select name="vehicleTypeId" asp-items="Model.VehicleTypesFilter" class="form-control"></select>
+    </label>
+    <label><input type="submit" value="Filter"/></label>
+</form>
+<br />
+<a class="btn btn-primary" asp-action="AddVehicleClass" asp-controller="AdminPanel">Add class</a>
+<table class="table">
+<tr>
+    <td><b>Vehicle type</b></td>
+    <td><b>Class name</b></td>
+</tr>
+    @foreach (var m in Model.VehicleClasses)
+{
+   <tr>
+       <td>@foreach (var vt in ViewBag.VehicleTypes)
+           {
+               if (vt.Id == m.VehicleTypeId)
+               {
+                   @vt.Name
+               }
+           }
+       </td>
+       <td>@m.Name</td>
+   </tr>
+}
+</table>

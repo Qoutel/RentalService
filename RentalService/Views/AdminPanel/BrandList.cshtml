@@ -1,0 +1,18 @@
+﻿@model IEnumerable<RentalService.Models.VehicleBrand>
+
+<h2>Vehicle brands list</h2>
+
+<a class="btn btn-primary" asp-action="AddVehicleBrand" asp-controller="AdminPanel">Add brand</a>
+<table class="table">
+<tr>
+    <td><b>Number</b></td>
+    <td><b>Brand name</b></td>
+</tr>
+@foreach (var brand in Model)
+{
+   <tr>
+       <td>@brand.Id</td>
+       <td>@brand.Name</td>
+   </tr>
+}
+</table>

@@ -24,6 +24,14 @@
 <br />
 <a class="btn btn-primary" asp-action="AddVehicle" asp-controller="AdminPanel">Add vehicle</a>
 <table class="table">
+<tr>
+    <td><b>Vehicle type</b></td>
+    <td><b>Brand name</b></td>
+    <td><b>Vehicle class</b></td>
+    <td><b>Fuel type</b></td>
+    <td><b>Price/day</b></td>
+    <td><b>Location</b></td>
+</tr>
 @foreach (Vehicle v in Model.Vehicles)
 {
    <tr>
