@@ -25,7 +25,7 @@ namespace RentalService.Controllers
             _dbContext = dbContext;
             _logger = logger;
         }
-        public async Task<IActionResult> Index(bool BMW, int page = 1)
+        public async Task<IActionResult> Index(int page = 1)
         {
             int itemsOnPage = 4;
             var vehicles = _dbContext.Vehicle.Include(m => m.Brand).Include(m => m.VehicleType)
@@ -33,13 +33,87 @@ namespace RentalService.Controllers
             var count = await vehicles.CountAsync();
             var items = await vehicles.Skip((page - 1) * itemsOnPage).Take(itemsOnPage).ToListAsync();
             PageViewModel pageViewModel = new PageViewModel(count, page, itemsOnPage);
+            var vehicleTypes = await _dbContext.VehicleType.ToListAsync();
             var brands = await _dbContext.VehicleBrand.ToListAsync();
+            var fuelTypes = await _dbContext.FuelType.ToListAsync();
+            var locations = await _dbContext.Location.ToListAsync();
             HomePageViewModel model = new HomePageViewModel { PageViewModel = pageViewModel, Vehicles = items,
-                VehicleBrands = brands, BMW = BMW};
+                VehicleBrands = brands, FuelTypes = fuelTypes, Locations = locations, VehicleTypes = vehicleTypes};
 
             return View(model);
         }
-
+        public IActionResult PartialVehicleList(bool isAutoTrans, int[] vehicleType, int[] brand, int[] fuelType, int[] location)
+        {
+            var vehicles = _dbContext.Vehicle.Include(m => m.Brand).Include(m => m.VehicleType)
+               .Include(m => m.VehicleClass).Include(m => m.Location).Include(m => m.FuelType).Include(m => m.Photos).ToList();
+            List<Vehicle> vehicleTypeFiltered = new List<Vehicle>();
+            List<Vehicle> brandFiltered = new List<Vehicle>();
+            List<Vehicle> fuelTypeFiltered = new List<Vehicle>();
+            List<Vehicle> locationFiltered = new List<Vehicle>();
+            List<Vehicle> autoTransFiltered = new List<Vehicle>();
+            if (vehicleType.Length != 0)
+            {
+                foreach (int vt in vehicleType)
+                {
+                    var filtered = vehicles.Where(v => v.VehicleType.Id == vt).ToList();
+                    vehicleTypeFiltered.AddRange(filtered);
+                }
+            }
+            else
+            {
+                vehicleTypeFiltered = vehicles;
+            }
+            if (brand.Length != 0)
+            {
+                foreach (int b in brand)
+                {
+                    var filtered = vehicles.Where(v => v.Brand.Id == b).ToList();
+                    brandFiltered.AddRange(filtered);
+                }
+            }
+            else
+            {
+                brandFiltered = vehicles;
+            }
+            if (fuelType.Length != 0)
+            {
+                foreach (int ft in fuelType)
+                {
+                    var filtered = vehicles.Where(v => v.FuelType.Id == ft).ToList();
+                    fuelTypeFiltered.AddRange(filtered);
+                }
+            }
+            else
+            {
+                fuelTypeFiltered = vehicles;
+            }
+            if (location.Length != 0)
+            {
+                foreach (int l in location)
+                {
+                    var filtered = vehicles.Where(v => v.Location.Id == l).ToList();
+                    locationFiltered.AddRange(filtered);
+                }
+            }
+            else
+            {
+                locationFiltered = vehicles;
+            }
+            if (isAutoTrans)
+            {
+                var filtered = vehicles.Where(v => v.AutomaticTransmission == true).ToList();
+                autoTransFiltered.AddRange(filtered);
+            }
+            else
+            {
+                autoTransFiltered = vehicles;
+            }
+            var filteredVehicles = vehicleTypeFiltered.Intersect(brandFiltered);
+            filteredVehicles = filteredVehicles.Intersect(fuelTypeFiltered);
+            filteredVehicles = filteredVehicles.Intersect(locationFiltered);
+            filteredVehicles = filteredVehicles.Intersect(autoTransFiltered);
+            return PartialView("_PartialVehicleList", filteredVehicles.ToList());
+        }
         public IActionResult Privacy()
         {
             return View();
