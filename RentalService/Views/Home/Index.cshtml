@@ -1,17 +1,132 @@
-﻿@{
+﻿@model RentalService.ViewModels.HomePageViewModel
+
+@{
     ViewData["Title"] = "Home Page";
 }
- 
-@if(User.Identity.IsAuthenticated)
-{
-    <p>Authorized as: @User.Identity.Name</p>
- 
-    <form method="post" asp-controller="Account" asp-action="Logout">
-        <input type="submit" value="Log out" />
-    </form>
+ <style>
+    table{margin: auto;}
+   TD, TH {
+    padding:20px 70px;
+    text-align: center;
+   }
+   @@font-face {
+            font-family: 'FontAwesome';
+            src: url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2') format('woff2'), 
+            url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/fonts/fontawesome-webfont.woff') format('woff'), 
+            url('https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/fonts/fontawesome-webfont.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal
+        }
+ 
+        .glyphicon {
+            display: inline-block;
+            font: normal normal normal 14px/1 FontAwesome;
+            font-size: inherit;
+            text-rendering: auto;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale
+        }
+ 
+        .glyphicon-chevron-right:before {
+            content: "\f054";
+        }
+ 
+        .glyphicon-chevron-left:before {
+            content: "\f053";
+        }
+  </style>
+<h2>Vehicle rent</h2>
+<p>@Model.BMW</p>
+<form asp-action="Index">
+    @for(var i = 0; i < Model.VehicleBrands.Count(); i++)
+    {
+        <p>
+            <input type ="checkbox" name="@Model.VehicleBrands[i].Name" data-check="@Model.VehicleBrands[i].Name" value="true" />@Model.VehicleBrands[i].Name
+        </p>
+    }
+    <p>
+                <input type="checkbox" checked name="html5"/>HTML5
+            </p>
+            <p>
+                <input type="checkbox" name="dotnet"/>.NET
+            </p>
+            <p>
+                <input type="checkbox" name="java"/>Java
+            </p>
+            <p>
+                <button type="submit">Отправить</button>
+            </p>
+        </form>
+<table>
+        @{
+            var vehicles = Model.Vehicles.ToList();
+            var count = Model.Vehicles.Count();
+            for (var i = 0; i < Model.Vehicles.Count(); i+=2)
+            {
+                <tr>
+                @for (var j = 0; j < 2; j++)
+                {
+                    if (count - 1 >= 0)
+                    {
+                        <td>
+                            <p><b style="font-size:20px">@vehicles[i+j].Brand.Name @vehicles[i+j].Name @vehicles[i+j].YearOfManufactured</b></p>
+                            @if (!vehicles[i + j].Photos.Any())
+                            {
+                                <img style='width:400px; height:300px;' src="~/Files/NoPhoto.jpg" class="img" alt="No photo" />
+                            }
+                            else
+                            {
+                                <img style='width:400px; height:300px;' src="data:image/jpeg;base64,@(Convert.ToBase64String(vehicles[i+j].Photos.First().Photo))" />
+                            }
+                            <pre style="font-size:14px"><b>Location: </b>@vehicles[i+j].Location.Name</pre>
+                            <pre style="font-size:14px"><b>Fuel type: </b>@vehicles[i+j].FuelType.Name     <b>Mileage: </b>@vehicles[i+j].Mileage km</pre>
+                            <pre style="font-size:14px"><b>Number of seats: </b>@vehicles[i+j].NumberOfSeats     <b>Price: </b>@vehicles[i+j].PricePerDay UAH</pre>
+                            <p><b>Available: </b>@{
+                                if (vehicles[i + j].IsAvailable)
+                                {
+                                    <b>&#10004;</b>
+                                }
+                                else
+                                {
+                                    <b>&#10008;</b>
+                                }
+                            }
+                            </p>
+                            <div class="d-grid gap-2 col-6 mx-auto">
+                                @if (vehicles[i + j].IsAvailable)
+                                {
+                                    <button type="submit" class="btn btn-warning">Rent</button>    
+                                }
+                                else
+                                {
+                                    <button type="submit" class="btn btn-warning" disabled data-toggle="submit">Rent</button>    
+                                }
+                                <button type="submit" class="btn btn-sm btn-light">Details</button>
+                            </div>
+                        </td>
+                        count -= 1;
+                    }
+                }
+                </tr>
+                
+            }
 }
-else
+</table>
+  @if (Model.PageViewModel.HasPreviousPage)
 {
-    <a asp-controller="Account" asp-action="Login">Login</a>
-    <a asp-controller="Account" asp-action="Register">Registration</a>
+    <a asp-action="Index"
+       asp-route-page="@(Model.PageViewModel.PageNumber - 1)"
+       class="btn btn-outline-dark">
+        <i class="glyphicon glyphicon-chevron-left"></i>
+        Previous
+    </a>
+}
+@if (Model.PageViewModel.HasNextPage)
+{
+    <a asp-action="Index"
+       asp-route-page="@(Model.PageViewModel.PageNumber + 1)"
+       class="btn btn-outline-dark">
+        Next
+        <i class="glyphicon glyphicon-chevron-right"></i>
+    </a>
 }
