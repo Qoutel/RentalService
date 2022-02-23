@@ -45,6 +45,7 @@ else
 }
 </table>
 
-<a class="btn btn-primary" asp-action="VehicleEdit" asp-controller="AdminPanel">Edit</a>
+<a class="btn btn-primary" asp-action="VehicleManagment" asp-controller="AdminPanel">Back to vehicle list</a>
+<a class="btn btn-primary" asp-action="VehicleEdit" asp-controller="AdminPanel" asp-route-vehicleId="@Model.Id">Edit</a>
 <a class="btn btn-danger" asp-action="VehicleManagment" asp-controller="AdminPanel" asp-route-vehicleId="@Model.Id">Delete</a>
 

@@ -1,0 +1,32 @@
+﻿@model IEnumerable<RentalService.Models.Vehicle>
+
+<table class="table">
+    <tr>
+        <td><b>Vehicle type</b></td>
+        <td><b>Name</b></td>
+        <td><b>Vehicle class</b></td>
+        <td><b>Fuel type</b></td>
+        <td><b>Price/day</b></td>
+        <td><b>Location</b></td>
+    </tr>
+    @foreach (Vehicle v in Model)
+    {
+        <tr>
+            <td>@v.VehicleType.Name</td>
+            <td>@v.Brand?.Name @v.Name</td>
+            <td>@v.VehicleClass?.Name</td>
+            <td>@v.FuelType?.Name</td>
+            <td>@v.PricePerDay</td>
+            <td>@v.Location?.Name</td>
+            <td><form asp-action="VehicleInfo" asp-route-vehicleId="@v.Id">
+                    <button type="submit" class="btn btn-sm btn-info">Detail information</button>
+                </form>
+            </td>
+            <td><a class="btn btn-primary" asp-action="VehicleEdit" asp-route-vehicleId="@v.Id">Edit</a></td>
+            <td><form asp-action="VehicleManagment" asp-route-vehicleId="@v.Id">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </table>
