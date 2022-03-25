@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Autofac;
+using RentalService.Managers;
+using RentalService.Interface;
 
 namespace RentalService
 {
@@ -28,7 +31,11 @@ namespace RentalService
 
             services.AddControllersWithViews();
         }
-
+        public void ConfigureContainer(ContainerBuilder builder)
+        {
+            // Register your services
+            builder.RegisterType<DbManager>().As<IDbManager>();
+        }
         public void Configure(IApplicationBuilder app)
         {
             app.UseDeveloperExceptionPage();
