@@ -37,37 +37,47 @@
   </style>
 <h1>Vehicle rent</h1><br />
 <form id="vehicleFilter" asp-action="Index" method="get" data-ajax="true" data-ajax-method="get" data-ajax-update="#panel" data-ajax-mode='replace' data-ajax-url="@Url.Action("PartialVehicleList","Home")">
-<label><b>Vehicle type:</b>
+<b>Vehicle type:</b>
     @for(var i = 0; i < Model.VehicleTypes.Count(); i++)
     {
-            <input type ="checkbox" name="vehicleType" value="@Model.VehicleTypes[i].Id" />
-            <span>@Model.VehicleTypes[i].Name</span>
+        <label>
+            <input type ="checkbox" name="@Model.VehicleTypes[i].Name" value="@Model.VehicleTypes[i].Id" />
+            @Model.VehicleTypes[i].Name
+        </label>
     }
-</label><br />
-<label><b>Vehicle brand:</b>
+<br />
+<b>Vehicle brand:</b>
     @for(var i = 0; i < Model.VehicleBrands.Count(); i++)
     {
+        <label>
             <input type ="checkbox" name="brand" value="@Model.VehicleBrands[i].Id" />
             <span>@Model.VehicleBrands[i].Name</span>
+        </label>
     }
-</label><br />
-<label><b>Fuel type:</b>
+<br />
+<b>Fuel type:</b>
     @for(var i = 0; i < Model.FuelTypes.Count(); i++)
     {
+        <label>
             <input type ="checkbox" name="fuelType" value="@Model.FuelTypes[i].Id" />
             <span>@Model.FuelTypes[i].Name</span>
+        </label>
     }
-</label><br />
-<label><b>Location:</b>
+<br />
+<b>Location:</b>
     @for(var i = 0; i < Model.Locations.Count(); i++)
     {
+        <label>
             <input type ="checkbox" name="location" value="@Model.Locations.[i].Id" />
             <span>@Model.Locations[i].Name</span>
+        </label>
     }
-</label><br />
-<label><b>Auto transmission:</b>
+<br />
+<b>Auto transmission:</b>
+    <label>
     <input type ="checkbox" name="isAutoTrans" value="true" />
-</label><br />
+    </label>
+<br />
 <label><input type="submit" value="Filter"/></label>
 </form>
 @section scripts{
