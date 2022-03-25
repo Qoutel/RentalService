@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RentalService.Interface;
 using RentalService.Models;
 using RentalService.ViewModels;
 using System.Diagnostics;
@@ -11,39 +12,42 @@ namespace RentalService.Controllers
 {
     public class HomeController : Controller
     {
+        private IDbManager dbManager; 
         readonly IdentityContext _context;
         readonly ApplicationDbContext _dbContext;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<HomeController> _logger;
         public HomeController(UserManager<User> userManager, SignInManager<User> signInManager,
-            IdentityContext context, ApplicationDbContext dbContext, ILogger<HomeController> logger)
+            IdentityContext context, ApplicationDbContext dbContext, ILogger<HomeController> logger, IDbManager _dbManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
             _dbContext = dbContext;
             _logger = logger;
+            dbManager = _dbManager;
         }
         public async Task<IActionResult> Index(int page = 1)
         {
             int itemsOnPage = 4;
-            var vehicles = _dbContext.Vehicle.Include(m => m.Brand).Include(m => m.VehicleType)
-                .Include(m => m.VehicleClass).Include(m => m.Location).Include(m => m.FuelType).Include(m => m.Photos);
-            var count = await vehicles.CountAsync();
-            var items = await vehicles.Skip((page - 1) * itemsOnPage).Take(itemsOnPage).ToListAsync();
+            var vehicles = dbManager.GetVehicle();
+            //var vehicles = _dbContext.Vehicle.Include(m => m.Brand).Include(m => m.VehicleType)
+            //.Include(m => m.VehicleClass).Include(m => m.Location).Include(m => m.FuelType).Include(m => m.Photos);
+            var count = vehicles.Count();
             PageViewModel pageViewModel = new PageViewModel(count, page, itemsOnPage);
             var vehicleTypes = await _dbContext.VehicleType.ToListAsync();
             var brands = await _dbContext.VehicleBrand.ToListAsync();
             var fuelTypes = await _dbContext.FuelType.ToListAsync();
             var locations = await _dbContext.Location.ToListAsync();
-            HomePageViewModel model = new HomePageViewModel { PageViewModel = pageViewModel, Vehicles = items,
+            HomePageViewModel model = new HomePageViewModel { PageViewModel = pageViewModel, Vehicles = vehicles,
                 VehicleBrands = brands, FuelTypes = fuelTypes, Locations = locations, VehicleTypes = vehicleTypes};
 
             return View(model);
         }
         public IActionResult PartialVehicleList(bool isAutoTrans, int[] vehicleType, int[] brand, int[] fuelType, int[] location)
         {
+
             var vehicles = _dbContext.Vehicle.Include(m => m.Brand).Include(m => m.VehicleType)
                .Include(m => m.VehicleClass).Include(m => m.Location).Include(m => m.FuelType).Include(m => m.Photos).ToList();
             List<Vehicle> vehicleTypeFiltered = new List<Vehicle>();
@@ -126,8 +130,7 @@ namespace RentalService.Controllers
         }
         public IActionResult CarList()
         {
-            List<Vehicle> cars = _dbContext.Vehicle.Include(m => m.Brand).Include(m => m.VehicleType)
-                .Include(m => m.VehicleClass).Include(m => m.Location).Include(m => m.FuelType).ToList();
+            List<Vehicle> cars = dbManager.GetVehicle();
             return View(cars);
         }
         public IActionResult GetPartial(string[] vehicleType, string[] brand)
