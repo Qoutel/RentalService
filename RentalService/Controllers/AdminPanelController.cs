@@ -5,22 +5,26 @@ using Microsoft.EntityFrameworkCore;
 using RentalService.Models;
 using RentalService.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using RentalService.Interface;
 
 namespace RentalService.Controllers
 {
     [Authorize(Roles = "admin")]
     public class AdminPanelController : Controller
     {
+        private IDbManager dbManager;
         readonly IdentityContext _context;
         readonly ApplicationDbContext _dbContext;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        public AdminPanelController(UserManager<User> userManager, SignInManager<User> signInManager, IdentityContext context, ApplicationDbContext dbContext)
+        public AdminPanelController(UserManager<User> userManager, SignInManager<User> signInManager, IdentityContext context, 
+            ApplicationDbContext dbContext, IDbManager _dbManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
             _dbContext = dbContext;
+            dbManager = _dbManager;
         }
         [Authorize(Roles = "admin")]
         public IActionResult Index()
@@ -80,23 +84,13 @@ namespace RentalService.Controllers
             return RedirectToAction("AddVehicle");
         }
 
-        public IActionResult VehicleManagment(int? vehicleTypeId, int? branId, int? fuelTypeId, int? locationId, int? vehicleId)
+        public IActionResult VehicleManagment()
         {
-            if (vehicleId != null)
-            {
-                var vehicle = _dbContext.Vehicle.Where(v => v.Id == vehicleId).FirstOrDefault();
-                if (vehicle != null)
-                {
-                    _dbContext.Vehicle.Remove(vehicle);
-                    _dbContext.SaveChanges();
-                }
-            }
-            List<Vehicle> vehicles = _dbContext.Vehicle.Include(m => m.Brand).Include(m => m.VehicleType)
-                .Include(m => m.VehicleClass).Include(m => m.Location).Include(m => m.FuelType).ToList();
-            List<VehicleType> vehicleTypes = _dbContext.VehicleType.ToList();
-            List<FuelType> fuelTypes = _dbContext.FuelType.ToList();
-            List<Location> locations = _dbContext.Location.ToList();
-            List<VehicleBrand> vehicleBrands = _dbContext.VehicleBrand.ToList();
+            List<Vehicle> vehicles = dbManager.GetVehicles();
+            List<VehicleType> vehicleTypes = dbManager.GetVehicleTypes();
+            List<FuelType> fuelTypes = dbManager.GetFuelTypes();
+            List<Location> locations = dbManager.GetLocations();
+            List<VehicleBrand> vehicleBrands = dbManager.GetVehicleBrands();
             List<VehicleTypeModel> vtm = vehicleTypes.Select(s => new VehicleTypeModel { Id = s.Id, Name = s.Name }).ToList();
             vtm.Insert(0, new VehicleTypeModel { Id = 0, Name = "All" });
             List<FuelTypeModel> ftm = fuelTypes.Select(s => new FuelTypeModel { Id = s.Id, Name = s.Name }).ToList();
@@ -107,6 +101,21 @@ namespace RentalService.Controllers
             vbm.Insert(0, new VehicleBrandModel { Id = 0, Name = "All" });
             VehicleManagmentViewModel model = new VehicleManagmentViewModel { Vehicles = vehicles, VehicleTypes = new SelectList(vtm, "Id", "Name"),
                 FuelTypes = new SelectList(ftm, "Id", "Name"), Locations = new SelectList(lm, "Id", "Name"), VehicleBrands = new SelectList(vbm, "Id", "Name") };
+            return View(model);
+        }
+        public IActionResult PartialVehicleManagmentFilter(int? vehicleTypeId, int? branId, int? fuelTypeId, int? locationId, int? vehicleId)
+        {
+            if (vehicleId != null)
+            {
+                var vehicle = _dbContext.Vehicle.Where(v => v.Id == vehicleId).FirstOrDefault();
+                if (vehicle != null)
+                {
+                    _dbContext.Vehicle.Remove(vehicle);
+                    _dbContext.SaveChanges();
+                }
+            }
+            List<Vehicle> vehicles = dbManager.GetVehicles();
+            
             if (vehicleTypeId != null && vehicleTypeId > 0)
             {
                 vehicles = vehicles.Where(v => v.VehicleType.Id == vehicleTypeId).ToList();
@@ -123,24 +132,21 @@ namespace RentalService.Controllers
             {
                 vehicles = vehicles.Where(v => v.Location.Id == locationId).ToList();
             }
-            model.Vehicles = vehicles;
-            return View(model);
+            return PartialView("_VehicleListPartial", vehicles);
+
         }
-        public async Task<IActionResult> VehicleInfo(int vehicleId)
+        public IActionResult VehicleInfo(int vehicleId)
         {
-            var vehicle = await _dbContext.Vehicle.Include(m => m.Brand).Include(m => m.VehicleType)
-                .Include(m => m.VehicleClass).Include(m => m.Location).Include(m => m.FuelType).Include(m => m.Photos)
-                .Where(v => v.Id == vehicleId).FirstOrDefaultAsync();
+            var vehicle = dbManager.GetVehicles().Where(v => v.Id == vehicleId).FirstOrDefault();
             if (vehicle != null)
             {
                 return View(vehicle);
             }
             return RedirectToAction("VehicleManagment");
         }
-        public async Task<IActionResult> VehicleEdit(int vehicleId)
+        public IActionResult VehicleEdit(int vehicleId)
         {
-            var vehicle = await _dbContext.Vehicle.Include(m => m.Brand).Include(m => m.VehicleType)
-                .Include(m => m.VehicleClass).Include(m => m.Location).Include(m => m.FuelType).Where(v => v.Id == vehicleId).FirstOrDefaultAsync();
+            var vehicle = dbManager.GetVehicles().Where(v => v.Id == vehicleId).FirstOrDefault();
             if (vehicle != null)
             {
                 SelectList fuelType = new SelectList(_dbContext.FuelType, "Id", "Name");
@@ -166,7 +172,7 @@ namespace RentalService.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = _dbContext.Vehicle.Where(v => v.Id == vehicle.Id).FirstOrDefault();
+                var result = dbManager.GetVehicles().Where(v => v.Id == vehicle.Id).FirstOrDefault();
                 if (result != null)
                 {
                     FuelType fuelType = _dbContext.FuelType.Where(ft => ft.Id == vehicle.FuelTypeId).First();
@@ -216,9 +222,9 @@ namespace RentalService.Controllers
             }
             return RedirectToAction("VehicleInfo", new { vehicleId = id });
         }
-        public async Task<IActionResult> BrandList()
+        public IActionResult BrandList()
         {
-            var model = await _dbContext.VehicleBrand.ToListAsync();
+            var model = dbManager.GetVehicleBrands();
             return View(model);
         }
         [HttpGet]
@@ -231,7 +237,7 @@ namespace RentalService.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _dbContext.VehicleBrand.Where(b => b.Name == model.Name).FirstOrDefaultAsync();
+                var result = dbManager.GetVehicleBrands().Where(b => b.Name == model.Name).FirstOrDefault();
                 if (result == null)
                 {
                     await _dbContext.VehicleBrand.AddAsync(new VehicleBrand() { Name = model.Name });
@@ -246,14 +252,14 @@ namespace RentalService.Controllers
             return View(model);
         }
         [HttpGet]
-        public async Task<IActionResult> VehicleClassList(int? vehicleTypeId)
+        public IActionResult VehicleClassList(int? vehicleTypeId)
         {
-            var vehicleClasses = await _dbContext.VehicleClassification.ToListAsync();
+            var vehicleClasses = dbManager.GetVehicleClassifications();
             if (vehicleTypeId != null && vehicleTypeId > 0)
             {
                 vehicleClasses = vehicleClasses.Where(v => v.VehicleTypeId == vehicleTypeId).ToList();
             }
-            var vehicleTypes = await _dbContext.VehicleType.ToListAsync();
+            var vehicleTypes = dbManager.GetVehicleTypes();
             List<VehicleTypeModel> vtm = vehicleTypes.Select(s => new VehicleTypeModel { Id = s.Id, Name = s.Name }).ToList();
             vtm.Insert(0, new VehicleTypeModel { Id = 0, Name = "All" });
             VehicleClassListViewModel model = new VehicleClassListViewModel()
@@ -262,7 +268,7 @@ namespace RentalService.Controllers
                 VehicleTypes = vehicleTypes,
                 VehicleTypesFilter = new SelectList(vtm, "Id", "Name"),
             };
-            ViewBag.VehicleTypes = await _dbContext.VehicleType.ToListAsync();
+            ViewBag.VehicleTypes = vehicleTypes;
             return View(model);
         }
         [HttpGet]
@@ -277,7 +283,7 @@ namespace RentalService.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _dbContext.VehicleClassification.Where(c => c.Name == model.ClassName).FirstOrDefaultAsync();
+                var result = dbManager.GetVehicleClassifications().Where(c => c.Name == model.ClassName).FirstOrDefault();
                 if (result == null)
                 {
                     VehicleClassification vehicleClassification = new VehicleClassification() { Name = model.ClassName, VehicleTypeId = model.VehicleTypeId };
@@ -294,9 +300,9 @@ namespace RentalService.Controllers
             ViewBag.VehicleType = vehicleType;
             return View(model);
         }
-        public async Task<IActionResult> AdditionalServicesList()
+        public IActionResult AdditionalServicesList()
         {
-            var model = await _dbContext.AdditionalService.ToListAsync();
+            var model = dbManager.GetAdditionalServices();
             return View(model);
         }
         [HttpGet]
@@ -308,7 +314,7 @@ namespace RentalService.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _dbContext.AdditionalService.Where(service => service.Name == model.Name).FirstOrDefaultAsync();
+                var result = dbManager.GetAdditionalServices().Where(service => service.Name == model.Name).FirstOrDefault();
                 if (result == null)
                 {
                     await _dbContext.AdditionalService.AddAsync(model);
@@ -322,9 +328,9 @@ namespace RentalService.Controllers
             }
             return View(model);
         }
-        public async Task<IActionResult> LocationList()
+        public IActionResult LocationList()
         {
-            var model = await _dbContext.Location.ToListAsync();
+            var model = dbManager.GetLocations();
             return View(model);
         }
         [HttpGet]
@@ -337,7 +343,7 @@ namespace RentalService.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _dbContext.Location.Where(location => location.Name == model.Name).FirstOrDefaultAsync();
+                var result = dbManager.GetLocations().Where(location => location.Name == model.Name).FirstOrDefault();
                 if (result == null)
                 {
                     await _dbContext.Location.AddAsync(model);
@@ -351,9 +357,9 @@ namespace RentalService.Controllers
             }
             return View(model);
         }
-        public async Task<IActionResult> FuelTypeList()
+        public IActionResult FuelTypeList()
         {
-            var model = await _dbContext.FuelType.ToListAsync();
+            var model = dbManager.GetFuelTypes();
             return View(model);
         }
         [HttpGet]
@@ -366,7 +372,7 @@ namespace RentalService.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _dbContext.FuelType.Where(fuelType => fuelType.Name == model.Name).FirstOrDefaultAsync();
+                var result = dbManager.GetFuelTypes().Where(fuelType => fuelType.Name == model.Name).FirstOrDefault();
                 if (result == null)
                 {
                     await _dbContext.FuelType.AddAsync(model);

@@ -99,6 +99,95 @@ namespace RentalService.Models
                 dbContext.VehicleBrand.AddRange(audi, bmw, renault);
                 dbContext.SaveChanges();
             }
+            if (!dbContext.Vehicle.Any())
+            {
+                var gasoline = dbContext.FuelType.Where(f => f.Name == "Gasoline").First();
+                var car = dbContext.VehicleType.Where(v => v.Name == "Car").First();
+                var borispol = dbContext.Location.Where(l => l.Id == 1).First();
+                var sportsCar = dbContext.VehicleClassification.Where(vc => vc.Name == "Sports car").First();
+                var audi = dbContext.VehicleBrand.Where(vb => vb.Name == "Audi").First();
+                Vehicle audiTT = new Vehicle()
+                {
+                    Name = "TT",
+                    YearOfManufactured = 2008,
+                    Mileage = 14000,
+                    PricePerDay = 2500,
+                    FuelType = gasoline,
+                    VehicleClass = sportsCar,
+                    NumberOfSeats = 2,
+                    Location = borispol,
+                    VehicleType = car,
+                    Brand = audi,
+                    IsAvailable = false
+                };
+                Vehicle audiTTrs = new Vehicle()
+                {
+                    Name = "TT RS",
+                    YearOfManufactured = 2021,
+                    Mileage = 12000,
+                    PricePerDay = 4500,
+                    FuelType = gasoline,
+                    VehicleClass = sportsCar,
+                    NumberOfSeats = 2,
+                    Location = borispol,
+                    VehicleType = car,
+                    Brand = audi
+                };
+                Vehicle audiR8 = new Vehicle()
+                {
+                    Name = "R8",
+                    YearOfManufactured = 2020,
+                    Mileage = 1000,
+                    PricePerDay = 5500,
+                    FuelType = gasoline,
+                    VehicleClass = sportsCar,
+                    NumberOfSeats = 2,
+                    Location = borispol,
+                    VehicleType = car,
+                    Brand = audi
+                };
+                Vehicle audiR8spyder = new Vehicle()
+                {
+                    Name = "R8 Spyder",
+                    YearOfManufactured = 2021,
+                    Mileage = 4000,
+                    PricePerDay = 6600,
+                    FuelType = gasoline,
+                    VehicleClass = sportsCar,
+                    NumberOfSeats = 2,
+                    Location = borispol,
+                    VehicleType = car,
+                    Brand = audi
+                };
+                Vehicle audiTTS = new Vehicle()
+                {
+                    Name = "TTS",
+                    YearOfManufactured = 2018,
+                    Mileage = 17000,
+                    PricePerDay = 5500,
+                    FuelType = gasoline,
+                    VehicleClass = sportsCar,
+                    NumberOfSeats = 2,
+                    Location = borispol,
+                    VehicleType = car,
+                    Brand = audi
+                };
+                Vehicle audiRS5sportback = new Vehicle()
+                {
+                    Name = "RS 5 Sportback",
+                    YearOfManufactured = 2020,
+                    Mileage = 24000,
+                    PricePerDay = 7850,
+                    FuelType = gasoline,
+                    VehicleClass = sportsCar,
+                    NumberOfSeats = 2,
+                    Location = borispol,
+                    VehicleType = car,
+                    Brand = audi
+                };
+                dbContext.Vehicle.AddRange(audiTT, audiTTS, audiTTrs, audiRS5sportback, audiR8spyder, audiR8);
+                dbContext.SaveChanges();
+            }
         }
     }
 }

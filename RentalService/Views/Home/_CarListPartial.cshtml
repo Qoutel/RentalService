@@ -1,0 +1,10 @@
+﻿@model IEnumerable<RentalService.Models.Vehicle>
+
+@foreach (var c in Model)
+{
+            <div class="card-body">
+                <h5 class="card-title text-center">@c.Brand.Name</h5>
+                <p class="card-text text-center f-sz-12 ">@c.Name</p>
+                <p class="card-text rounded text-center price-for-list">@c.PricePerDay ₴</p>
+            </div>
+}

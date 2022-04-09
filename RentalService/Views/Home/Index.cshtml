@@ -1,17 +1,161 @@
-﻿@{
+﻿    @model RentalService.ViewModels.HomePageViewModel
+
+@{
     ViewData["Title"] = "Home Page";
 }
- 
-@if(User.Identity.IsAuthenticated)
-{
-    <p>Authorized as: @User.Identity.Name</p>
- 
-    <form method="post" asp-controller="Account" asp-action="Logout">
-        <input type="submit" value="Log out" />
-    </form>
+ <style>
+    table{margin: auto;}
+   TD, TH {
+    padding:20px 70px;
+    text-align: center;
+   }
+   @@font-face {
+            font-family: 'FontAwesome';
+            src: url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2') format('woff2'), 
+            url('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/fonts/fontawesome-webfont.woff') format('woff'), 
+            url('https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/fonts/fontawesome-webfont.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal
+        }
+ 
+        .glyphicon {
+            display: inline-block;
+            font: normal normal normal 14px/1 FontAwesome;
+            font-size: inherit;
+            text-rendering: auto;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale
+        }
+ 
+        .glyphicon-chevron-right:before {
+            content: "\f054";
+        }
+ 
+        .glyphicon-chevron-left:before {
+            content: "\f053";
+        }
+  </style>
+<h1>Vehicle rent</h1><br />
+<form id="vehicleFilter" asp-action="Index" method="get" data-ajax="true" data-ajax-method="get" data-ajax-update="#panel" data-ajax-mode='replace' data-ajax-url="@Url.Action("PartialVehicleList","Home")">
+<b>Vehicle type:</b>
+    @for(var i = 0; i < Model.VehicleTypes.Count(); i++)
+    {
+        <label>
+            <input type ="checkbox" name="@Model.VehicleTypes[i].Name" value="@Model.VehicleTypes[i].Id" />
+            @Model.VehicleTypes[i].Name
+        </label>
+    }
+<br />
+<b>Vehicle brand:</b>
+    @for(var i = 0; i < Model.VehicleBrands.Count(); i++)
+    {
+        <label>
+            <input type ="checkbox" name="brand" value="@Model.VehicleBrands[i].Id" />
+            <span>@Model.VehicleBrands[i].Name</span>
+        </label>
+    }
+<br />
+<b>Fuel type:</b>
+    @for(var i = 0; i < Model.FuelTypes.Count(); i++)
+    {
+        <label>
+            <input type ="checkbox" name="fuelType" value="@Model.FuelTypes[i].Id" />
+            <span>@Model.FuelTypes[i].Name</span>
+        </label>
+    }
+<br />
+<b>Location:</b>
+    @for(var i = 0; i < Model.Locations.Count(); i++)
+    {
+        <label>
+            <input type ="checkbox" name="location" value="@Model.Locations.[i].Id" />
+            <span>@Model.Locations[i].Name</span>
+        </label>
+    }
+<br />
+<b>Auto transmission:</b>
+    <label>
+    <input type ="checkbox" name="isAutoTrans" value="true" />
+    </label>
+<br />
+<label><input type="submit" value="Filter"/></label>
+</form>
+@section scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajax-unobtrusive/3.2.6/jquery.unobtrusive-ajax.min.js"></script>
 }
-else
-{
-    <a asp-controller="Account" asp-action="Login">Login</a>
-    <a asp-controller="Account" asp-action="Register">Registration</a>
+<div class = "list" id="panel">
+<table class="table">
+        @{
+            var vehicles = Model.Vehicles.ToList();
+            var count = Model.Vehicles.Count();
+            for (var i = 0; i < Model.Vehicles.Count(); i += 2)
+            {
+                <tr>
+                @for (var j = 0; j < 2; j++)
+                {
+                    if (count - 1 >= 0)
+                    {
+                        <td>
+                            <p><b style="font-size:20px">@vehicles[i+j].Brand.Name @vehicles[i+j].Name @vehicles[i+j].YearOfManufactured</b></p>
+                            @if (!vehicles[i + j].Photos.Any())
+                            {
+                                <img style='width:400px; height:300px;' src="~/Files/NoPhoto.jpg" class="img" alt="No photo" />
+                            }
+                            else
+                            {
+                                <img style='width:400px; height:300px;' src="data:image/jpeg;base64,@(Convert.ToBase64String(vehicles[i+j].Photos.First().Photo))" />
+                            }
+                            <pre style="font-size:14px"><b>Location: </b>@vehicles[i+j].Location.Name</pre>
+                            <pre style="font-size:14px"><b>Fuel type: </b>@vehicles[i+j].FuelType.Name     <b>Mileage: </b>@vehicles[i+j].Mileage km</pre>
+                            <pre style="font-size:14px"><b>Number of seats: </b>@vehicles[i+j].NumberOfSeats     <b>Price: </b>@vehicles[i+j].PricePerDay UAH</pre>
+                            <p><b>Available: </b>@{
+                                if (vehicles[i + j].IsAvailable)
+                                {
+                                    <b>&#10004;</b>
+                                }
+                                else
+                                {
+                                    <b>&#10008;</b>
+                                }
+                            }
+                            </p>
+                            <div class="d-grid gap-2 col-6 mx-auto">
+                                @if (vehicles[i + j].IsAvailable)
+                                {
+                                    <button type="submit" class="btn btn-warning">Rent</button>    
+                                }
+                                else
+                                {
+                                    <button type="submit" class="btn btn-warning" disabled data-toggle="submit">Rent</button>    
+                                }
+                                <button type="submit" class="btn btn-sm btn-light">Details</button>
+                            </div>
+                        </td>
+                        count -= 1;
+                    }
+                }
+                </tr>
+                
+            }
 }
+</table>
+ @if (Model.PageViewModel.HasPreviousPage)
+{
+    <a asp-action="Index"
+       asp-route-page="@(Model.PageViewModel.PageNumber - 1)"
+       class="btn btn-outline-dark">
+        <i class="glyphicon glyphicon-chevron-left"></i>
+        Previous
+    </a>
+}
+@if (Model.PageViewModel.HasNextPage)
+{
+    <a asp-action="Index"
+       asp-route-page="@(Model.PageViewModel.PageNumber + 1)"
+       class="btn btn-outline-dark">
+        Next
+        <i class="glyphicon glyphicon-chevron-right"></i>
+    </a>
+}
+</div>
+ 
