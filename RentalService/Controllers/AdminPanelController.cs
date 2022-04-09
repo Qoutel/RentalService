@@ -380,5 +380,30 @@ namespace RentalService.Controllers
             }
             return View(model);
         }
+        [HttpGet]
+        public async Task<IActionResult> EditAdditionalService(int? serviceId)
+        {
+            if (serviceId != null && serviceId > 0)
+            {
+                var model = await _dbContext.AdditionalService.Where(s => s.Id == serviceId).FirstOrDefaultAsync();
+                if (model != null)
+                {
+                    return View(model);
+                }
+            }
+            return RedirectToAction("AdditionalServicesList");
+        }
+        [HttpPost]
+        public async Task<IActionResult> EditAdditionalService(AdditionalService model)
+        {
+            var result = await _dbContext.AdditionalService.Where(s => s.Id == model.Id).FirstOrDefaultAsync();
+            if (result != null)
+            {
+                result.Price = model.Price;
+                _dbContext.AdditionalService.Update(result);
+                await _dbContext.SaveChangesAsync();
+            }
+            return RedirectToAction("AdditionalServicesList");
+        }
     }
 }

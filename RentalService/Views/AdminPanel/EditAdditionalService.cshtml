@@ -1,0 +1,19 @@
+﻿@model RentalService.Models.AdditionalService
+
+<h2>@Model.Name price edit</h2>
+
+<form asp-action="EditAdditionalService" asp-controller="AdminPanel" method="post">
+    <div class="form-group">
+        <label asp-for="Price" class="control-label">Price</label>
+        <input type="text" asp-for="Price" class="form-control" />
+    </div>
+    <div class="form-group">
+        <input type="hidden" asp-for="Name" class="form-control" />
+    </div>
+    <div class="form-group">
+        <input type="hidden" asp-for="Id" class="form-control" />
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Save" />
+    </div>
+</form>
