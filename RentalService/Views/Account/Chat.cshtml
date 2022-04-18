@@ -1,0 +1,72 @@
+﻿<style type="text/css">
+span {
+  color:red;
+  font-size:22pt;
+}
+</style>
+
+ <h1><b>Welcome to RentalService chat!</b></h1>
+ 
+<div id="header"></div>
+<br />
+ 
+<div id="inputForm">
+    <input type="text" id="message" />
+    <input type="button" id="sendBtn" value="Send message" />
+</div>
+@if (User.IsInRole("admin"))
+{
+    <br /><div id="notifyForm">
+        <input type="text" id="notify" />
+        <input type="button" id="notifyBtn" value="Notify" />
+    </div>
+}
+ 
+<div id="chatroom"></div>
+ 
+<script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+<script>
+    const hubConnection = new signalR.HubConnectionBuilder()
+        .withUrl("/chat")
+        .build();
+ 
+    let userName = "";
+    hubConnection.on("Receive", function (message, userName) {
+ 
+        let userNameElem = document.createElement("b");
+        userNameElem.appendChild(document.createTextNode(userName + ": "));
+ 
+        let elem = document.createElement("p");
+        elem.appendChild(userNameElem);
+        elem.appendChild(document.createTextNode(message));
+ 
+        var firstElem = document.getElementById("chatroom").firstChild;
+        document.getElementById("chatroom").insertBefore(elem, firstElem);
+ 
+    });
+    hubConnection.on("ReceiveNotify", function (message) {
+        let br = document.createElement("br");
+
+        let elem = document.createElement("span");
+        elem.appendChild(br);
+        elem.appendChild(document.createTextNode(message));
+        
+        var firstElem = document.getElementById("chatroom").firstChild;
+        document.getElementById("chatroom").insertBefore(elem, firstElem);
+ 
+    });
+    document.getElementById("sendBtn").addEventListener("click", function (e) {
+        let message = document.getElementById("message").value;
+        hubConnection.invoke("Send", message);
+    });
+    @if (User.IsInRole("admin"))
+    {
+        <text>
+        document.getElementById("notifyBtn").addEventListener("click", function(e) {
+            let message = document.getElementById("notify").value;
+            hubConnection.invoke("Notify", message);
+        });
+        </text>
+    }
+    hubConnection.start();
+</script>

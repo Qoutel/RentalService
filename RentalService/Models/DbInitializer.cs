@@ -106,6 +106,11 @@ namespace RentalService.Models
                 var borispol = dbContext.Location.Where(l => l.Id == 1).First();
                 var sportsCar = dbContext.VehicleClassification.Where(vc => vc.Name == "Sports car").First();
                 var audi = dbContext.VehicleBrand.Where(vb => vb.Name == "Audi").First();
+                var bmw = dbContext.VehicleBrand.Where(vb => vb.Name == "BMW").First();
+                var moto = dbContext.VehicleType.Where(vt => vt.Name == "Moto").First();
+                var sportbike = dbContext.VehicleClassification.Where(vc => vc.Name == "Sport bike").First();
+                var sikorsky = dbContext.Location.Where(l =>l.Id == 2).First();
+                var diesel = dbContext.FuelType.Where(f => f.Name == "Diesel").First();
                 Vehicle audiTT = new Vehicle()
                 {
                     Name = "TT",
@@ -185,7 +190,21 @@ namespace RentalService.Models
                     VehicleType = car,
                     Brand = audi
                 };
-                dbContext.Vehicle.AddRange(audiTT, audiTTS, audiTTrs, audiRS5sportback, audiR8spyder, audiR8);
+                Vehicle bmwR1250RS = new Vehicle()
+                {
+                    Name = "R 1250 RS",
+                    YearOfManufactured = 2019,
+                    Mileage = 1000,
+                    PricePerDay = 5800,
+                    FuelType = diesel,
+                    VehicleClass = sportbike,
+                    NumberOfSeats = 1,
+                    Location = sikorsky,
+                    VehicleType = moto,
+                    Brand = bmw,
+                    AutomaticTransmission = true
+                };
+                dbContext.Vehicle.AddRange(audiTT, audiTTS, audiTTrs, audiRS5sportback, audiR8spyder, audiR8, bmwR1250RS);
                 dbContext.SaveChanges();
             }
         }

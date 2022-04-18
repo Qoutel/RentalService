@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RentalService.Interface;
 using RentalService.Models;
+using RentalService.ViewModels;
 
 namespace RentalService.Managers
 {

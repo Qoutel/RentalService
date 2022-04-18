@@ -1,0 +1,36 @@
+﻿@model RentalService.ViewModels.RentViewModel
+
+<p><b>Rent amount: @Model.RentAmount</b></p>
+<table class="table">
+<tr>
+    <td><b>Additional service name</b></td>
+    <td><b>Price</b></td>
+</tr>
+@foreach (var serv in Model.AdditionalServices)
+{
+   <tr>
+       <td>@serv.Name</td>
+            @if(serv.Id == 5)
+            {
+                <td>
+                    @{
+                        var totalPDamount = serv.Price * Model.ReturnDate.Subtract(Model.SubmissionDate).Days;
+                    }
+                    @totalPDamount
+                </td>
+            }
+            else
+            {
+                <td>@serv.Price</td>
+            }
+            
+   </tr>
+}
+</table>
+<form method = "post" asp-controller = "VehiclesRent" asp-action = "Rent">
+    <input asp-for="VehicleId" type="hidden" value="@Model.VehicleId"  />
+    <input asp-for="RentAmount" type="hidden" value="@Model.RentAmount"  />
+    <input asp-for="SubmissionDate" type="hidden" value="@Model.SubmissionDate"  />
+    <input asp-for="ReturnDate" type="hidden" value="@Model.ReturnDate"  />
+    <input class="btn btn-primary" type="submit" value="Rent vehicle" />
+</form>

@@ -252,13 +252,9 @@ namespace RentalService.Controllers
             return View(model);
         }
         [HttpGet]
-        public IActionResult VehicleClassList(int? vehicleTypeId)
+        public IActionResult VehicleClassList()
         {
             var vehicleClasses = dbManager.GetVehicleClassifications();
-            if (vehicleTypeId != null && vehicleTypeId > 0)
-            {
-                vehicleClasses = vehicleClasses.Where(v => v.VehicleTypeId == vehicleTypeId).ToList();
-            }
             var vehicleTypes = dbManager.GetVehicleTypes();
             List<VehicleTypeModel> vtm = vehicleTypes.Select(s => new VehicleTypeModel { Id = s.Id, Name = s.Name }).ToList();
             vtm.Insert(0, new VehicleTypeModel { Id = 0, Name = "All" });
@@ -268,8 +264,23 @@ namespace RentalService.Controllers
                 VehicleTypes = vehicleTypes,
                 VehicleTypesFilter = new SelectList(vtm, "Id", "Name"),
             };
-            ViewBag.VehicleTypes = vehicleTypes;
             return View(model);
+        }
+        public IActionResult PartialVehicleClassFilter(int? vehicleTypeId)
+        {
+            var vehicleClasses = dbManager.GetVehicleClassifications();
+            var vehicleTypes = dbManager.GetVehicleTypes();
+            if (vehicleTypeId != null && vehicleTypeId > 0)
+            {
+                vehicleClasses = vehicleClasses.Where(v => v.VehicleTypeId == vehicleTypeId).ToList();
+            }
+            VehicleClassListViewModel model = new VehicleClassListViewModel()
+            {
+                VehicleClasses = vehicleClasses,
+                VehicleTypes = vehicleTypes,
+            };
+            return PartialView("_VehicleClassListPartial", model);
+
         }
         [HttpGet]
         public IActionResult AddVehicleClass()

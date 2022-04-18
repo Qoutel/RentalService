@@ -1,0 +1,48 @@
+﻿@model RentalService.ViewModels.RentViewModel
+
+<h2><b>Rent @ViewBag.Vehicle.Brand.Name @ViewBag.Vehicle.Name @ViewBag.Vehicle.YearOfManufactured</b></h2>
+@if (ViewBag.Vehicle.IsAvailable)
+{
+    <p><b>Availability for rent: &#10004;</b></p>
+}
+else
+{
+    <p><b>Availability for rent: &#10008;</b></p>
+}
+<p><b>Current location:</b> @ViewBag.Vehicle.Location.Name</p>
+
+<form id="my_form" asp-action="RentAmountPartial" method="get" data-ajax="true" data-ajax-method="get" data-ajax-update="#panel" data-ajax-mode='replace' data-ajax-url="@Url.Action("RentAmountPartial","VehiclesRent")">
+    <div asp-validation-summary = "ModelOnly"></div>
+    <div>
+     <input asp-for="VehicleId" type="hidden" value="@ViewBag.Vehicle.Id"  />
+    </div>
+    <div>
+        <label asp-for="SubmissionDate"></label><br />
+        <input asp-for="SubmissionDate" />
+        <span asp-validation-for="SubmissionDate"></span>
+    </div>
+    <div>
+        <label asp-for="ReturnDate"></label><br />
+        <input asp-for="ReturnDate" />
+        <span asp-validation-for="ReturnDate"></span>
+    </div>
+    <b>Choose additional services:</b>
+    @for(var i = 0; i < ViewBag.AdditionalServices.Count; i++)
+    {
+        <label>
+            <input type ="checkbox" name="addServices" value="@ViewBag.AdditionalServices[i].Name" />
+            <span>@ViewBag.AdditionalServices[i].Name</span>
+        </label>
+    }
+    <br />
+    <input class="btn btn-light" type="submit" value="Check rent amount" />
+</form>
+@section scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajax-unobtrusive/3.2.6/jquery.unobtrusive-ajax.min.js"></script>
+}
+<div id="panel">
+    <p><b>Rent amount: 0</b></p>
+</div>
+
+
+

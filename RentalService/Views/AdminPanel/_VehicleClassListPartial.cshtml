@@ -1,0 +1,22 @@
+﻿@model RentalService.ViewModels.VehicleClassListViewModel
+
+<table class="table">
+<tr>
+    <td><b>Vehicle type</b></td>
+    <td><b>Class name</b></td>
+</tr>
+    @foreach (var m in Model.VehicleClasses)
+{
+   <tr>
+       <td>@foreach (var vt in Model.VehicleTypes)
+           {
+               if (vt.Id == m.VehicleTypeId)
+               {
+                   @vt.Name
+               }
+           }
+       </td>
+       <td>@m.Name</td>
+   </tr>
+}
+</table>

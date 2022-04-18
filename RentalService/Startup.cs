@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Autofac;
 using RentalService.Managers;
 using RentalService.Interface;
+using RentalService.Chat;
+using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
 
 namespace RentalService
 {
@@ -25,10 +28,11 @@ namespace RentalService
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddDbContext<IdentityContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
             services.AddIdentity<User, IdentityRole>()
             .AddEntityFrameworkStores<IdentityContext>();
 
+            services.AddSignalR();
+            
             services.AddControllersWithViews();
         }
         public void ConfigureContainer(ContainerBuilder builder)
@@ -47,13 +51,18 @@ namespace RentalService
 
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute(
+                name: "chat",
+                pattern: "{controller=Account}/{action=Chat}");
+
+                endpoints.MapHub<ChatHub>("/chat");
             });
+
         }
     }
 }
