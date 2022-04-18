@@ -246,5 +246,9 @@ namespace RentalService.Controllers
             }
             return RedirectToAction("Cabinet");
         }
+        public IActionResult Chat()
+        {
+            return View();
+        }
     }
 }

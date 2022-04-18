@@ -7,6 +7,6 @@ namespace RentalService.ViewModels
     {
         public IEnumerable<VehicleClassification> VehicleClasses { get; set; }
         public IEnumerable<VehicleType> VehicleTypes { get; set; }
-        public SelectList VehicleTypesFilter { get; set; }
+        public SelectList? VehicleTypesFilter { get; set; }
     }
 }

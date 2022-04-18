@@ -1,0 +1,43 @@
+﻿@model RentalService.Models.Vehicle
+
+<h2>@Model.Brand.Name @Model.Name @Model.YearOfManufactured @Model.VehicleType.Name</h2><br />
+<table class="table">
+@if(Model.Photos.Any())
+{
+    var i = 1;
+    foreach (var photo in Model.Photos)
+    {
+            <tr>
+                <td><img style='width:240px; height:180px;' src="data:image/jpeg;base64,@(Convert.ToBase64String(photo.Photo))" /></td>
+            </tr>
+    }
+}
+</table>
+<p><b>Vehicle type:</b> @Model.VehicleType.Name</p>
+<p><b>Brand:</b> @Model.Brand.Name</p>
+<p><b>Model:</b> @Model.Name</p>
+<p><b>Year of manufactured:</b> @Model.YearOfManufactured</p>
+<p><b>Mileage:</b> @Model.Mileage</p>
+<p><b>Price:</b> @Model.PricePerDay/day</p>
+@if (Model.IsAvailable)
+{
+    <p><b>Availability for rent:</b> available</p>
+}
+else
+{
+    <p><b>Availability for rent:</b> not available</p>
+}
+<p><b>Fuel type:</b> @Model.FuelType.Name</p>
+<p><b>Number of seats:</b> @Model.NumberOfSeats</p>
+@if (Model.AutomaticTransmission)
+{
+    <p><b>Automatic transmission:</b> Yes</p>
+}
+else
+{
+    <p><b>Automatic transmission:</b> No</p>
+}
+<p><b>Current location:</b> @Model.Location.Name</p>
+<a class="btn btn-primary" asp-action="Index" asp-controller="Home">Back to vehicle list</a>
+<a class="btn btn-warning" asp-action="Rent" asp-controller="VehiclesRent" asp-route-vehicleId="@Model.Id">Rent</a>
+

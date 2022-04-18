@@ -41,8 +41,8 @@
     @for(var i = 0; i < Model.VehicleTypes.Count(); i++)
     {
         <label>
-            <input type ="checkbox" name="@Model.VehicleTypes[i].Name" value="@Model.VehicleTypes[i].Id" />
-            @Model.VehicleTypes[i].Name
+            <input type ="checkbox" name="vehicleType" value="@Model.VehicleTypes[i].Id" />
+            <span>@Model.VehicleTypes[i].Name</span>
         </label>
     }
 <br />
@@ -68,7 +68,7 @@
     @for(var i = 0; i < Model.Locations.Count(); i++)
     {
         <label>
-            <input type ="checkbox" name="location" value="@Model.Locations.[i].Id" />
+            <input type ="checkbox" name="location" value="@Model.Locations[i].Id" />
             <span>@Model.Locations[i].Name</span>
         </label>
     }
@@ -122,13 +122,13 @@
                             <div class="d-grid gap-2 col-6 mx-auto">
                                 @if (vehicles[i + j].IsAvailable)
                                 {
-                                    <button type="submit" class="btn btn-warning">Rent</button>    
+                                    <a class="btn btn-warning" asp-action="RentVehicle" asp-controller="VehiclesRent" asp-route-vehicleId="@vehicles[i+j].Id">Rent</a>
                                 }
                                 else
                                 {
-                                    <button type="submit" class="btn btn-warning" disabled data-toggle="submit">Rent</button>    
+                                    <button type="submit" class="btn btn-warning" disabled data-toggle="submit">Rent</button>
                                 }
-                                <button type="submit" class="btn btn-sm btn-light">Details</button>
+                                <a class="btn btn-sm btn-light" asp-action="VehicleInfo" asp-controller="VehiclesRent" asp-route-vehicleId="@vehicles[i+j].Id">Details</a>
                             </div>
                         </td>
                         count -= 1;
