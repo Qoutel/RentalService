@@ -4,26 +4,13 @@ using RentalService.Controllers;
 using Microsoft.AspNetCore.Identity;
 using RentalService.Models;
 using RentalService.Interface;
+using Moq;
 
 namespace RentalService.Tests
 {
     [TestFixture]
     public class RentAmountTests
     {
-        UserManager<User> _userManager;
-        SignInManager<User> _signInManager;
-        IdentityContext _context;
-        ApplicationDbContext _dbContext;
-        IDbManager dbManager;
-        public RentAmountTests(UserManager<User> userManager, SignInManager<User> signInManager, IdentityContext context,
-        ApplicationDbContext dbContext, IDbManager _dbManager)
-        {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _context = context;
-            _dbContext = dbContext;
-            dbManager = _dbManager;
-        }
         [TestCase]
         public void When_PersonalDriver_Expect_PriceMultiplyDays()
         {
@@ -34,11 +21,18 @@ namespace RentalService.Tests
                 VehicleId = 1,
             };
             string[] addServices = new string[] { "GPS", "Video recorder", "Personal driver" };
-            VehiclesRentController vrc = new VehiclesRentController(_userManager, _signInManager, _context, _dbContext, dbManager);
+            Mock<UserManager<User>> mock1 = new Mock<UserManager<User>>();
+            Mock<SignInManager<User>> mock2 = new Mock<SignInManager<User>>();
+            Mock<IdentityContext> mock3 = new Mock<IdentityContext>();
+            Mock<ApplicationDbContext> mock4 = new Mock<ApplicationDbContext>();
+            Mock<IDbManager> mock5 = new Mock<IDbManager>();
+            mock5.Setup(m => m.GetVehicles()).Returns(new List<Vehicle>());
+            mock5.Setup(m => m.GetAdditionalServices()).Returns(new List<AdditionalService>());
+            VehiclesRentController vrc = new VehiclesRentController(mock5.Object);
 
             vrc.RentAmountPartial(rvm, addServices);
 
-            Assert.AreEqual(rvm.RentAmount, 13719);
+            Assert.AreEqual(rvm.RentAmount, 1000);
         }
     }
 }
