@@ -13,10 +13,10 @@ namespace RentalService.Controllers
     public class VehiclesRentController : Controller
     {
         private IDbManager dbManager;
-        readonly IdentityContext _context;
-        readonly ApplicationDbContext _dbContext;
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
+        readonly IdentityContext? _context;
+        readonly ApplicationDbContext? _dbContext;
+        private readonly UserManager<User>? _userManager;
+        private readonly SignInManager<User>? _signInManager;
         public VehiclesRentController(UserManager<User> userManager, SignInManager<User> signInManager, IdentityContext context, 
             ApplicationDbContext dbContext, IDbManager _dbManager)
         {
@@ -24,6 +24,10 @@ namespace RentalService.Controllers
             _signInManager = signInManager;
             _context = context;
             _dbContext = dbContext;
+            dbManager = _dbManager;
+        }
+        public VehiclesRentController(IDbManager _dbManager)
+        {
             dbManager = _dbManager;
         }
         public IActionResult Index()
@@ -85,13 +89,13 @@ namespace RentalService.Controllers
         public IActionResult RentAmountPartial(RentViewModel rentalVehicle, string[] addServices)
         {
             var rentDays = rentalVehicle.ReturnDate.Subtract(rentalVehicle.SubmissionDate).Days;
-            var vehicle = _dbContext.Vehicle.Where(v => v.Id == rentalVehicle.VehicleId).First();
+            var vehicle = dbManager.GetVehicles().Where(v => v.Id == rentalVehicle.VehicleId).First();
             decimal rentAmount = rentDays * vehicle.PricePerDay;
             AdditionalService tempServ;
             List<AdditionalService> addServ = new List<AdditionalService>();
             foreach (var service in addServices)
             {
-                tempServ = _dbContext.AdditionalService.Where(s => s.Name.Contains(service)).First();
+                tempServ = dbManager.GetAdditionalServices().Where(s => s.Name.Contains(service)).First();
                 if (tempServ.Name == "Personal driver")
                 {
                     rentAmount += tempServ.Price * rentDays;

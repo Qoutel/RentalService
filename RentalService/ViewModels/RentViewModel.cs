@@ -15,6 +15,6 @@ namespace RentalService.ViewModels
         public DateTime ReturnDate { get; set; } = DateTime.Now;
         public int VehicleId { get; set; }
         public decimal RentAmount { get; set; }
-        public List<AdditionalService> AdditionalServices { get; set; } = new List<AdditionalService>();
+        public List<AdditionalService>? AdditionalServices { get; set; } = new List<AdditionalService>();
     }
 }
