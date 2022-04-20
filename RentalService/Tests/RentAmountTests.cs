@@ -11,8 +11,6 @@ namespace RentalService.Tests
     [TestFixture]
     public class RentAmountTests
     {
-        Mock<IDbManager> _dbManagerMock = new Mock<IDbManager>();
-        IDbManager _dbManager;
         [TestCase]
         public void When_PersonalDriver_Expect_PriceMultiplyDays()
         {
