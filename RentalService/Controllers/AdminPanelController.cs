@@ -13,10 +13,10 @@ namespace RentalService.Controllers
     public class AdminPanelController : Controller
     {
         private IDbManager dbManager;
-        readonly IdentityContext _context;
-        readonly ApplicationDbContext _dbContext;
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
+        readonly IdentityContext? _context;
+        readonly ApplicationDbContext? _dbContext;
+        private readonly UserManager<User>? _userManager;
+        private readonly SignInManager<User>? _signInManager;
         public AdminPanelController(UserManager<User> userManager, SignInManager<User> signInManager, IdentityContext context, 
             ApplicationDbContext dbContext, IDbManager _dbManager)
         {
@@ -24,6 +24,10 @@ namespace RentalService.Controllers
             _signInManager = signInManager;
             _context = context;
             _dbContext = dbContext;
+            dbManager = _dbManager;
+        }
+        public AdminPanelController(IDbManager _dbManager)
+        {
             dbManager = _dbManager;
         }
         [Authorize(Roles = "admin")]
@@ -379,15 +383,15 @@ namespace RentalService.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> AddFuelType(FuelType model)
+        public IActionResult AddFuelType(FuelType model)
         {
             if (ModelState.IsValid)
             {
                 var result = dbManager.GetFuelTypes().Where(fuelType => fuelType.Name == model.Name).FirstOrDefault();
                 if (result == null)
                 {
-                    await _dbContext.FuelType.AddAsync(model);
-                    await _dbContext.SaveChangesAsync();
+                    _dbContext.FuelType.Add(model);
+                    _dbContext.SaveChanges();
                     return RedirectToAction("FuelTypeList");
                 }
                 else

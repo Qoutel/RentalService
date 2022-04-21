@@ -191,8 +191,11 @@ namespace RentalService.Controllers
                 {
                     img = reader.ReadBytes((int)model.Photo.Length);
                 }
-                UserDriverLicensePhoto userDriverLicensePhoto = new UserDriverLicensePhoto() { Name = user.Email + "DriverLicensePhoto", 
-                    Photo = img };
+                UserDriverLicensePhoto userDriverLicensePhoto = new UserDriverLicensePhoto() 
+                { 
+                    Name = user.Email + "DriverLicensePhoto", 
+                    Photo = img 
+                };
                 user.DriverLicensePhotos.Add(userDriverLicensePhoto);
                 _context.Users.Update(user);
                 _context.SaveChanges();
