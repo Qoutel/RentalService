@@ -1,0 +1,44 @@
+﻿@model RentalService.Models.Rent
+
+<h2><b>Rent #</b>@Model.Id</h2><br />
+
+<p><b>Submission date:</b> @Model.SubmissionDate</p>
+<p><b>Return date:</b> @Model.ReturnDate</p>
+<p><b>RentAmount:</b> @Model.RentAmount</p>
+<p><b>Return date:</b> @Model.ReturnDate</p>
+<p><b>Additional services:</b>
+    @foreach(var service in Model.AdditionalServices)
+    {
+        <label style="white-space: pre-wrap;">- @service.Name</label>
+    }
+</p>
+
+<p><b>Vehicle full name:</b>@Model.Vehicle.Brand.Name @Model.Vehicle.Name @Model.Vehicle.YearOfManufactured @Model.Vehicle.VehicleType.Name</p>
+<p><b>Brand:</b> @Model.Vehicle.Brand.Name</p>
+<p><b>Model:</b> @Model.Vehicle.Name</p>
+<p><b>Year of manufactured:</b> @Model.Vehicle.YearOfManufactured</p>
+<p><b>Mileage:</b> @Model.Vehicle.Mileage</p>
+<p><b>Price:</b> @Model.Vehicle.PricePerDay/day</p>
+<p><b>Fuel type:</b> @Model.Vehicle.FuelType.Name</p>
+<p><b>Number of seats:</b> @Model.Vehicle.NumberOfSeats</p>
+@if (Model.Vehicle.AutomaticTransmission)
+{
+    <p><b>Automatic transmission:</b>&#10004;</p>
+}
+else
+{
+    <p><b>Automatic transmission:</b>&#10008;</p>
+}
+
+<p><b>Customer name:</b> @ViewBag.Customer.FirstName @ViewBag.Customer.LastName</p>
+<p><b>Customer email:</b> @ViewBag.Customer.Email</p>
+<p><b>Customer username:</b> @ViewBag.Customer.UserName</p>
+<p><b>Customer adress:</b> @ViewBag.Customer.Adress</p>
+<p><b>Customer adress:</b> @ViewBag.Customer.Adress</p>
+<p><b>Customer date of birth:</b> @ViewBag.Customer.DateOfBirth</p>
+<p><b>Customer account created at:</b> @ViewBag.Customer.CreatedAt</p>
+
+<a class="btn btn-primary" asp-action="VehicleManagment" asp-controller="AdminPanel">Back to vehicle list</a>
+<a class="btn btn-primary" asp-action="VehicleEdit" asp-controller="AdminPanel" asp-route-vehicleId="@Model.Id">Edit</a>
+<a class="btn btn-danger" asp-action="VehicleManagment" asp-controller="AdminPanel" asp-route-vehicleId="@Model.Id">Delete</a>
+

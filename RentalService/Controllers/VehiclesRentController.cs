@@ -26,17 +26,13 @@ namespace RentalService.Controllers
             _dbContext = dbContext;
             dbManager = _dbManager;
         }
-        public VehiclesRentController(IDbManager _dbManager)
-        {
-            dbManager = _dbManager;
-        }
         public IActionResult Index()
         {
             return View();
         }
         public IActionResult VehicleInfo(int vehicleId)
         {
-            var vehicle = dbManager.GetVehicles().Where(v => v.Id == vehicleId).FirstOrDefault();
+            var vehicle = dbManager.GetVehicleById(vehicleId);
             if (vehicle != null)
             {
                 return View(vehicle);
@@ -47,9 +43,9 @@ namespace RentalService.Controllers
             }
         }
         [HttpGet]
-        public async Task<IActionResult> Rent(int vehicleId)
+        public IActionResult Rent(int vehicleId)
         {
-            var vehicle = dbManager.GetVehicles().Where(v => v.Id == vehicleId).FirstOrDefault();
+            var vehicle = dbManager.GetVehicleById(vehicleId);
             string userId = _userManager.GetUserId(User);
             var user = _userManager.Users.Where(u => u.Id == userId).FirstOrDefault();
             var additionalServices = dbManager.GetAdditionalServices();
@@ -73,7 +69,7 @@ namespace RentalService.Controllers
         public IActionResult Rent(RentViewModel rentalVehicle)
         {
             string userId = _userManager.GetUserId(User);
-            var vehicle = dbManager.GetVehicles().Where(v => v.Id == rentalVehicle.VehicleId).First();
+            var vehicle = dbManager.GetVehicleById(rentalVehicle.VehicleId);
             Rent rent = new Rent()
             {
                 CustomerId = userId,
@@ -82,32 +78,34 @@ namespace RentalService.Controllers
                 ReturnDate = rentalVehicle.ReturnDate,
                 RentAmount = rentalVehicle.RentAmount
             };
-            _dbContext.Rent.Add(rent);
-            _dbContext.SaveChanges();
+            dbManager.AddRent(rent);
             return RedirectToAction("SuccessfulRent", rent);
         }
         public IActionResult RentAmountPartial(RentViewModel rentalVehicle, string[] addServices)
         {
             var rentDays = rentalVehicle.ReturnDate.Subtract(rentalVehicle.SubmissionDate).Days;
-            var vehicle = dbManager.GetVehicles().Where(v => v.Id == rentalVehicle.VehicleId).First();
-            decimal rentAmount = rentDays * vehicle.PricePerDay;
-            AdditionalService tempServ;
-            List<AdditionalService> addServ = new List<AdditionalService>();
-            foreach (var service in addServices)
+            var vehicle = dbManager.GetVehicleById(rentalVehicle.VehicleId);
+            if (vehicle != null)
             {
-                tempServ = dbManager.GetAdditionalServices().Where(s => s.Name.Contains(service)).First();
-                if (tempServ.Name == "Personal driver")
+                decimal rentAmount = rentDays * vehicle.PricePerDay;
+                AdditionalService tempServ;
+                List<AdditionalService> addServ = new List<AdditionalService>();
+                foreach (var service in addServices)
                 {
-                    rentAmount += tempServ.Price * rentDays;
+                    tempServ = dbManager.GetAdditionalServices().Where(s => s.Name.Contains(service)).First();
+                    if (tempServ.Name == "Personal driver")
+                    {
+                        rentAmount += tempServ.Price * rentDays;
+                    }
+                    else
+                    {
+                        rentAmount += tempServ.Price;
+                    }
+                    addServ.Add(tempServ);
                 }
-                else
-                {
-                    rentAmount += tempServ.Price;
-                }
-                addServ.Add(tempServ);
+                rentalVehicle.RentAmount = rentAmount;
+                rentalVehicle.AdditionalServices = addServ;
             }
-            rentalVehicle.RentAmount = rentAmount;
-            rentalVehicle.AdditionalServices = addServ;
             return PartialView("_RentAmountPartial", rentalVehicle);
         }
         public IActionResult SuccessfulRent (Rent rent)
@@ -115,7 +113,7 @@ namespace RentalService.Controllers
             string userId = _userManager.GetUserId(User);
             User user = _userManager.Users.Where(u => u.Id == userId).First();
             ViewBag.Customer = user;
-            ViewBag.Rent = _dbContext.Rent.Where(r => r.Id == rent.Id).Include(m => m.Vehicle).FirstOrDefault();
+            ViewBag.Rent = dbManager.GetRentById(rent.Id);
             return View();
         }
     }

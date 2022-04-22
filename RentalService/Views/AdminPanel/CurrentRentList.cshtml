@@ -1,0 +1,38 @@
+﻿@model IEnumerable<RentalService.Models.Rent>
+@using System.Linq;
+
+<h2>Current rents list</h2>
+
+<table class="table">
+    <tr>
+        <td><b>Rent id</b></td>
+        <td><b>Customer</b></td>
+        <td><b>Vehicle</b></td>
+        <td><b>Submission date</b></td>
+        <td><b>Return date</b></td>
+        <td><b>Rent amount</b></td>
+    </tr>
+    @foreach (Rent rent in Model)
+    {
+        var customerEmail = "";
+        foreach (var customer in ViewBag.Customers)
+        {
+            if (customer.Id == rent.CustomerId)
+            {
+                customerEmail = customer.Email;
+            }
+        }
+        <tr>
+            <td>@rent.Id</td>
+            <td>@customerEmail</td>
+            <td>@rent.Vehicle?.Brand?.Name @rent.Vehicle?.Name @rent.Vehicle?.YearOfManufactured</td>
+            <td>@rent.SubmissionDate.ToShortDateString()</td>
+            <td>@rent.ReturnDate.ToShortDateString()</td>
+            <td>@rent.RentAmount</td>
+            <td><form asp-action="RentInfo" asp-route-rentId="@rent.Id" asp-route-customerId="@rent.CustomerId">
+                    <button type="submit" class="btn btn-sm btn-info">Detail information</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </table>
