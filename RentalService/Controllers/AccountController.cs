@@ -26,7 +26,6 @@ namespace RentalService.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            var stwq = "sad";
             return View();
         }
         [HttpPost]
