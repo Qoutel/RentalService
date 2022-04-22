@@ -122,7 +122,7 @@
                             <div class="d-grid gap-2 col-6 mx-auto">
                                 @if (vehicles[i + j].IsAvailable)
                                 {
-                                    <a class="btn btn-warning" asp-action="RentVehicle" asp-controller="VehiclesRent" asp-route-vehicleId="@vehicles[i+j].Id">Rent</a>
+                                    <a class="btn btn-warning" asp-action="Rent" asp-controller="VehiclesRent" asp-route-vehicleId="@vehicles[i+j].Id">Rent</a>
                                 }
                                 else
                                 {
