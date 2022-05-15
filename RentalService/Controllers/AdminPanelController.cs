@@ -6,25 +6,30 @@ using RentalService.Models;
 using RentalService.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using RentalService.Interface;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace RentalService.Controllers
 {
     [Authorize(Roles = "admin")]
     public class AdminPanelController : Controller
     {
+        const string CONNECTION_STRING = "Server = localhost; Database = RentalService; Trusted_Connection = True;";
         private IDbManager dbManager;
+        private IDbManagerADONET dbManagerADONET;
         readonly IdentityContext? _context;
         readonly ApplicationDbContext? _dbContext;
         private readonly UserManager<User>? _userManager;
         private readonly SignInManager<User>? _signInManager;
         public AdminPanelController(UserManager<User> userManager, SignInManager<User> signInManager, IdentityContext context, 
-            ApplicationDbContext dbContext, IDbManager _dbManager)
+            ApplicationDbContext dbContext, IDbManager _dbManager, IDbManagerADONET _dbManagerADONET)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
             _dbContext = dbContext;
             dbManager = _dbManager;
+            dbManagerADONET = _dbManagerADONET;
         }
         [Authorize(Roles = "admin")]
         public IActionResult Index()
@@ -32,30 +37,30 @@ namespace RentalService.Controllers
             return View();
         }
         [HttpGet]
-        public IActionResult AddVehicle()
+        public async Task<IActionResult> AddVehicle()
         {
-            SelectList fuelType = new SelectList(dbManager.GetFuelTypes(), "Id", "Name");
+            SelectList fuelType = new SelectList(await dbManagerADONET.GetFuelTypes(), "Id", "Name");
             ViewBag.FuelTypes = fuelType;
-            SelectList vehicleType = new SelectList(dbManager.GetVehicleTypes(), "Id", "Name");
+            SelectList vehicleType = new SelectList(await dbManagerADONET.GetVehicleTypes(), "Id", "Name");
             ViewBag.VehicleType = vehicleType;
-            SelectList location = new SelectList(dbManager.GetLocations(), "Id", "Name");
+            SelectList location = new SelectList(await dbManagerADONET.GetLocations(), "Id", "Name");
             ViewBag.Location = location;
-            SelectList vehicleClass = new SelectList(dbManager.GetVehicleClassifications(), "Id", "Name");
+            SelectList vehicleClass = new SelectList(await dbManagerADONET.GetVehicleClassifications(), "Id", "Name");
             ViewBag.VehicleClass = vehicleClass;
-            SelectList vehicleBrand = new SelectList(dbManager.GetVehicleBrands(), "Id", "Name");
+            SelectList vehicleBrand = new SelectList(await dbManagerADONET.GetVehicleBrands(), "Id", "Name");
             ViewBag.VehicleBrand = vehicleBrand;
             return View();
         }
         [HttpPost]
-        public IActionResult AddVehicle(AddVehicleViewModel model)
+        public async Task<IActionResult> AddVehicle(AddVehicleViewModel model)
         {
             if (ModelState.IsValid)
             {
-                FuelType? fuelType = dbManager.GetFuelTypeById(model.FuelTypeId);
-                VehicleType? vehicleType = dbManager.GetVehicleTypeById(model.VehicleTypeId);
-                Location? location = dbManager.GetLocationById(model.LocationId);
-                VehicleClassification? vehicleClass = dbManager.GetVehicleClassificationById(model.VehicleClassId);
-                VehicleBrand? brand = dbManager.GetVehicleBrandById(model.BrandId);
+                FuelType? fuelType = await dbManagerADONET.GetFuelTypeById(model.FuelTypeId);
+                VehicleType? vehicleType = await dbManagerADONET.GetVehicleTypeById(model.VehicleTypeId);
+                Location? location = await dbManagerADONET.GetLocationById(model.LocationId);
+                VehicleClassification? vehicleClass = await dbManagerADONET.GetVehicleClassificationById(model.VehicleClassId);
+                VehicleBrand? brand = await dbManagerADONET.GetVehicleBrandById(model.BrandId);
                 byte[]? img = null;
                 using (var reader = new BinaryReader(model.Photo.OpenReadStream()))
                 {
@@ -77,19 +82,19 @@ namespace RentalService.Controllers
                     Brand = brand
                 };
                 vehicle.Photos.Add(userPassportPhoto);
-                dbManager.AddVehicle(vehicle);
+                await dbManagerADONET.AddVehicle(vehicle);
                 return RedirectToAction("VehicleManagment");
             }
             return RedirectToAction("AddVehicle");
         }
 
-        public IActionResult VehicleManagment()
+        public async Task<IActionResult> VehicleManagment()
         {
-            List<Vehicle> vehicles = dbManager.GetVehicles();
-            List<VehicleType> vehicleTypes = dbManager.GetVehicleTypes();
-            List<FuelType> fuelTypes = dbManager.GetFuelTypes();
-            List<Location> locations = dbManager.GetLocations();
-            List<VehicleBrand> vehicleBrands = dbManager.GetVehicleBrands();
+            List<Vehicle> vehicles = await dbManagerADONET.GetVehicles();
+            List<VehicleType> vehicleTypes = await dbManagerADONET.GetVehicleTypes();
+            List<FuelType> fuelTypes = await dbManagerADONET.GetFuelTypes();
+            List<Location> locations = await dbManagerADONET.GetLocations();
+            List<VehicleBrand> vehicleBrands = await dbManagerADONET.GetVehicleBrands();
             List<VehicleTypeModel> vtm = vehicleTypes.Select(s => new VehicleTypeModel { Id = s.Id, Name = s.Name }).ToList();
             vtm.Insert(0, new VehicleTypeModel { Id = 0, Name = "All" });
             List<FuelTypeModel> ftm = fuelTypes.Select(s => new FuelTypeModel { Id = s.Id, Name = s.Name }).ToList();
@@ -102,17 +107,17 @@ namespace RentalService.Controllers
                 FuelTypes = new SelectList(ftm, "Id", "Name"), Locations = new SelectList(lm, "Id", "Name"), VehicleBrands = new SelectList(vbm, "Id", "Name") };
             return View(model);
         }
-        public IActionResult PartialVehicleManagmentFilter(int? vehicleTypeId, int? branId, int? fuelTypeId, int? locationId, int? vehicleId)
+        public async Task<IActionResult> PartialVehicleManagmentFilter(int? vehicleTypeId, int? branId, int? fuelTypeId, int? locationId, int? vehicleId)
         {
             if (vehicleId != null)
             {
-                var vehicle = dbManager.GetVehicleById(vehicleId.Value);
+                var vehicle = await dbManagerADONET.GetVehicleById(vehicleId.Value);
                 if (vehicle != null)
                 {
-                    dbManager.RemoveVehicle(vehicle);
+                    await dbManagerADONET.RemoveVehicle(vehicle);
                 }
             }
-            List<Vehicle> vehicles = dbManager.GetVehicles();
+            List<Vehicle> vehicles = await dbManagerADONET.GetVehicles();
             
             if (vehicleTypeId != null && vehicleTypeId > 0)
             {
@@ -133,18 +138,18 @@ namespace RentalService.Controllers
             return PartialView("_VehicleListPartial", vehicles);
 
         }
-        public IActionResult VehicleInfo(int vehicleId)
+        public async Task<IActionResult> VehicleInfo(int vehicleId)
         {
-            var vehicle = dbManager.GetVehicleById(vehicleId);
+            var vehicle = await dbManagerADONET.GetVehicleById(vehicleId);
             if (vehicle != null)
             {
                 return View(vehicle);
             }
             return RedirectToAction("VehicleManagment");
         }
-        public IActionResult VehicleEdit(int vehicleId)
+        public async Task<IActionResult> VehicleEdit(int vehicleId)
         {
-            var vehicle = dbManager.GetVehicleById(vehicleId);
+            var vehicle = await dbManagerADONET.GetVehicleById(vehicleId);
             if (vehicle != null)
             {
                 SelectList fuelType = new SelectList(dbManager.GetFuelTypes(), "Id", "Name");
@@ -166,11 +171,11 @@ namespace RentalService.Controllers
             return RedirectToAction("VehicleManagment");
         }
         [HttpPost]
-        public IActionResult VehicleEdit(EditVehicleViewModel vehicle)
+        public async Task<IActionResult> VehicleEdit(EditVehicleViewModel vehicle)
         {
             if (ModelState.IsValid)
             {
-                var result = dbManager.GetVehicleById(vehicle.Id);
+                var result = await dbManagerADONET.GetVehicleById(vehicle.Id);
                 if (result != null)
                 {
                     FuelType? fuelType = result.FuelType;
@@ -199,7 +204,7 @@ namespace RentalService.Controllers
                         VehiclePhoto photo = new VehiclePhoto() { Name = brand.Name + "_" + vehicle.Name, Photo = img };
                         result.Photos.Add(photo);
                     }
-                    dbManager.UpdateVehicle(result);
+                    await dbManagerADONET.UpdateVehicle(result);
                     return RedirectToAction("VehicleManagment");
                 }
             }
@@ -218,10 +223,10 @@ namespace RentalService.Controllers
             }
             return RedirectToAction("VehicleInfo", new { vehicleId = id });
         }
-        public IActionResult BrandList()
+        public async Task<IActionResult> BrandList()
         {
-            var model = dbManager.GetVehicleBrands();
-            return View(model);
+            List<VehicleBrand> brands = await dbManagerADONET.GetVehicleBrands();
+            return View(brands);
         }
         [HttpGet]
         public IActionResult AddVehicleBrand()
@@ -229,28 +234,26 @@ namespace RentalService.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult AddVehicleBrand(VehicleBrand model)
+        public async Task<IActionResult> AddVehicleBrand(VehicleBrand model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) 
             {
-                var result = dbManager.GetVehicleBrands().Where(b => b.Name == model.Name).FirstOrDefault();
-                if (result == null)
-                {
-                    dbManager.AddVehicleBrand(model);
-                    return RedirectToAction("BrandList");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Brand already exist");
-                }
+                ModelState.AddModelError("", "Enter 'Name' field");
+                return View(model);
             }
+            var isSuccess = await dbManagerADONET.AddVehicleBrand(model);
+            if (isSuccess)
+            {
+                return RedirectToAction("BrandList");
+            }
+            ModelState.AddModelError("", "Brand already exist");
             return View(model);
         }
         [HttpGet]
-        public IActionResult VehicleClassList()
+        public async Task<IActionResult> VehicleClassList()
         {
-            var vehicleClasses = dbManager.GetVehicleClassifications();
-            var vehicleTypes = dbManager.GetVehicleTypes();
+            var vehicleClasses = await dbManagerADONET.GetVehicleClassifications();
+            var vehicleTypes = await dbManagerADONET.GetVehicleTypes();
             List<VehicleTypeModel> vtm = vehicleTypes.Select(s => new VehicleTypeModel { Id = s.Id, Name = s.Name }).ToList();
             vtm.Insert(0, new VehicleTypeModel { Id = 0, Name = "All" });
             VehicleClassListViewModel model = new VehicleClassListViewModel()
@@ -261,10 +264,10 @@ namespace RentalService.Controllers
             };
             return View(model);
         }
-        public IActionResult PartialVehicleClassFilter(int? vehicleTypeId)
+        public async Task<IActionResult> PartialVehicleClassFilter(int? vehicleTypeId)
         {
-            var vehicleClasses = dbManager.GetVehicleClassifications();
-            var vehicleTypes = dbManager.GetVehicleTypes();
+            var vehicleClasses = await dbManagerADONET.GetVehicleClassifications();
+            var vehicleTypes = await dbManagerADONET.GetVehicleTypes();
             if (vehicleTypeId != null && vehicleTypeId > 0)
             {
                 vehicleClasses = vehicleClasses.Where(v => v.VehicleTypeId == vehicleTypeId).ToList();
@@ -278,36 +281,34 @@ namespace RentalService.Controllers
 
         }
         [HttpGet]
-        public IActionResult AddVehicleClass()
+        public async Task<IActionResult> AddVehicleClass()
         {
-            SelectList vehicleType = new SelectList(dbManager.GetVehicleTypes(), "Id", "Name");
+            SelectList vehicleType = new SelectList(await dbManagerADONET.GetVehicleTypes(), "Id", "Name");
             ViewBag.VehicleType = vehicleType;
             return View();
         }
         [HttpPost]
-        public ActionResult AddVehicleClass(AddVehicleClassViewModel model)
+        public async Task<IActionResult> AddVehicleClass(AddVehicleClassViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var result = dbManager.GetVehicleClassifications().Where(c => c.Name == model.ClassName).FirstOrDefault();
-                if (result == null)
-                {
-                    VehicleClassification vehicleClassification = new VehicleClassification() { Name = model.ClassName, VehicleTypeId = model.VehicleTypeId };
-                    dbManager.AddVehicleClassification(vehicleClassification);
-                    return RedirectToAction("VehicleClassList");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Class already exist");
-                }
+                ModelState.AddModelError("", "Enter required fields");
+                return View(model);
             }
+            VehicleClassification vehicleClassification = new VehicleClassification() { Name = model.ClassName, VehicleTypeId = model.VehicleTypeId };
+            bool isSuccessful = await dbManagerADONET.AddVehicleClassification(vehicleClassification);
+            if (isSuccessful)
+            {
+                return RedirectToAction("VehicleClassList");
+            }
+            ModelState.AddModelError("", "Class already exist");
             SelectList vehicleType = new SelectList(dbManager.GetVehicleTypes(), "Id", "Name");
             ViewBag.VehicleType = vehicleType;
             return View(model);
         }
-        public IActionResult AdditionalServicesList()
+        public async Task<IActionResult> AdditionalServicesList()
         {
-            var model = dbManager.GetAdditionalServices();
+            var model = await dbManagerADONET.GetAdditionalServices();
             return View(model);
         }
         [HttpGet]
@@ -315,26 +316,24 @@ namespace RentalService.Controllers
         {
             return View();
         }
-        public IActionResult AddAdditionalService(AdditionalService model)
+        public async Task<IActionResult> AddAdditionalService(AdditionalService model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var result = dbManager.GetAdditionalServices().Where(service => service.Name == model.Name).FirstOrDefault();
-                if (result == null)
-                {
-                    dbManager.AddAdditionalService(model);
-                    return RedirectToAction("AdditionalServicesList");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Additional service already exist");
-                }
+                ModelState.AddModelError("", "Enter 'Name' field");
+                return View(model);
             }
+            bool isSuccessful = await dbManagerADONET.AddAdditionalService(model);
+            if (isSuccessful)
+            {
+                return RedirectToAction("AdditionalServicesList");
+            }
+            ModelState.AddModelError("", "Additional service already exist");
             return View(model);
         }
-        public IActionResult LocationList()
+        public async Task<IActionResult> LocationList()
         {
-            var model = dbManager.GetLocations();
+            var model = await dbManagerADONET.GetLocations();
             return View(model);
         }
         [HttpGet]
@@ -343,26 +342,24 @@ namespace RentalService.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult AddLocation(Location model)
+        public async Task<IActionResult> AddLocation(Location model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var result = dbManager.GetLocations().Where(location => location.Name == model.Name).FirstOrDefault();
-                if (result == null)
-                {
-                    dbManager.AddLocation(model);
-                    return RedirectToAction("LocationList");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Location already exist");
-                }
+                ModelState.AddModelError("", "Enter 'Name' field");
+                return View(model);
             }
+            bool isSuccessful = await dbManagerADONET.AddLocation(model);
+            if (isSuccessful)
+            {
+                return RedirectToAction("LocationList");
+            }
+            ModelState.AddModelError("", "Location already exist");
             return View(model);
         }
-        public IActionResult FuelTypeList()
+        public async Task<IActionResult> FuelTypeList()
         {
-            var model = dbManager.GetFuelTypes();
+            var model = await dbManagerADONET.GetFuelTypes();
             return View(model);
         }
         [HttpGet]
@@ -371,29 +368,27 @@ namespace RentalService.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult AddFuelType(FuelType model)
+        public async Task<IActionResult> AddFuelType(FuelType model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var result = dbManager.GetFuelTypes().Where(fuelType => fuelType.Name == model.Name).FirstOrDefault();
-                if (result == null)
-                {
-                    dbManager.AddFuelType(model);
-                    return RedirectToAction("FuelTypeList");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Fuel type already exist");
-                }
+                ModelState.AddModelError("", "Enter 'Name' field");
+                return View(model);
             }
+            bool isSuccessful = await dbManagerADONET.AddFuelType(model);
+            if (isSuccessful)
+            {
+                return RedirectToAction("FuelTypeList");
+            }
+            ModelState.AddModelError("", "Fuel type already exist");
             return View(model);
         }
         [HttpGet]
-        public IActionResult EditAdditionalService(int? serviceId)
+        public async Task<IActionResult> EditAdditionalService(int? serviceId)
         {
             if (serviceId != null && serviceId > 0)
             {
-                var service = dbManager.GetAdditionalServiceById(serviceId.Value);
+                var service = await dbManagerADONET.GetAdditionalServiceById(serviceId.Value);
                 if (service != null)
                 {
                     return View(service);
@@ -402,26 +397,26 @@ namespace RentalService.Controllers
             return RedirectToAction("AdditionalServicesList");
         }
         [HttpPost]
-        public IActionResult EditAdditionalService(AdditionalService model)
+        public async Task<IActionResult> EditAdditionalService(AdditionalService model)
         {
-            var service = dbManager.GetAdditionalServiceById(model.Id);
+            var service = await dbManagerADONET.GetAdditionalServiceById(model.Id);
             if (service != null)
             {
                 service.Price = model.Price;
-                dbManager.UpdateAdditionalService(service);
+                await dbManagerADONET.UpdateAdditionalService(service);
             }
             return RedirectToAction("AdditionalServicesList");
         }
-        public IActionResult CurrentRentList()
+        public async Task<IActionResult> CurrentRentList()
         {
-            var currentRents = dbManager.GetRents();
-            ViewBag.Customers = _userManager.Users.ToList();
+            var currentRents = await dbManagerADONET.GetRents();
+            ViewBag.Customers = await dbManagerADONET.GetUsers();
             return View(currentRents);
         }
-        public IActionResult RentInfo(int rentId, string customerId)
+        public async Task<IActionResult> RentInfo(int rentId, string customerId)
         {
-            var rent = dbManager.GetRentById(rentId);
-            ViewBag.Customer = _userManager.Users.Where(u => u.Id == customerId).First();
+            var rent = await dbManagerADONET.GetRentById(rentId);
+            ViewBag.Customer = await dbManagerADONET.GetUserById(Int32.Parse(customerId));
             if (rent != null)
             {
                 return View(rent);

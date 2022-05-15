@@ -38,7 +38,4 @@ else
 <p><b>Customer date of birth:</b> @ViewBag.Customer.DateOfBirth</p>
 <p><b>Customer account created at:</b> @ViewBag.Customer.CreatedAt</p>
 
-<a class="btn btn-primary" asp-action="VehicleManagment" asp-controller="AdminPanel">Back to vehicle list</a>
-<a class="btn btn-primary" asp-action="VehicleEdit" asp-controller="AdminPanel" asp-route-vehicleId="@Model.Id">Edit</a>
-<a class="btn btn-danger" asp-action="VehicleManagment" asp-controller="AdminPanel" asp-route-vehicleId="@Model.Id">Delete</a>
-
+<a class="btn btn-primary" asp-action="CurrentRentList" asp-controller="AdminPanel">Back to rents list</a>

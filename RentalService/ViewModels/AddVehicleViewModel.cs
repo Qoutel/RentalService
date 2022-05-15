@@ -24,6 +24,6 @@ namespace RentalService.ViewModels
         public int VehicleClassId { get; set; }
         public int BrandId { get; set; }
         [Required]
-        public IFormFile Photo { get; set; }
+        public IFormFile? Photo { get; set; }
     }
 }

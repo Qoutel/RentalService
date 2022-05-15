@@ -39,6 +39,7 @@ namespace RentalService
         {
             // Register your services
             builder.RegisterType<DbManager>().As<IDbManager>();
+            builder.RegisterType<DbManagerADONET>().As<IDbManagerADONET>();
         }
         public void Configure(IApplicationBuilder app)
         {
