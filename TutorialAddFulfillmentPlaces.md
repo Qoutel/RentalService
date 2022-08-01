@@ -75,7 +75,7 @@ If you don't have a Google Cloud project yet or you're not the owner of an exist
 
 After the project is created, set your PROJECT_ID to a ```project``` variable:
 1. Run the following command in the Terminal:
-    ```bash \
+    ```bash
     gcloud config set project \
     <YOUR_PROJECT_ID>
     ```
@@ -84,12 +84,12 @@ After the project is created, set your PROJECT_ID to a ```project``` variable:
 ### Create service account
 To access the Retail API, you must create a service account. Check that you are an owner of your Google Cloud project on the <walkthrough-watcher-block link-url="https://console.cloud.google.com/iam-admin/iam">IAM page</walkthrough-watcher-block>.
 1. To create a service account, perform the following command:
-    ```bash \
+    ```bash
     gcloud iam service-accounts create \
     <YOUR_SERVICE_ACCOUNT_ID>
     ```
 1. Assign the needed roles to your service account:
-    ```bash \
+    ```bash
     for role in \
         {retail.admin,editor,bigquery.admin}
     do gcloud projects \
@@ -100,21 +100,21 @@ To access the Retail API, you must create a service account. Check that you are 
     done
     ```
 1. Use the following command to show the service account email:
-    ```bash \
+    ```bash
     gcloud iam service-accounts \
     list|grep \
     <YOUR_SERVICE_ACCOUNT_ID>
     ```
     Copy the service account email.
 1. Upload your service account key JSON file and use it to activate the service account:
-    ```bash \
+    ```bash
     gcloud iam service-accounts keys \
     create ~/key.json \
     --iam-account \
     <YOUR_SERVICE_ACCOUNT_EMAIL>
     ```
 
-    ```bash \
+    ```bash
     gcloud auth \
     activate-service-account \
     --key-file ~/key.json
@@ -128,7 +128,7 @@ To access the Retail API, you must create a service account. Check that you are 
 ### Install Google Cloud Retail libraries
 To run .NET code samples for the Retail API tutorial, you need to set up your virtual environment.
 1. Next, install Google packages:
-    ```bash \
+    ```bash
     for service_dir in \
         {RetailEvents.Samples,RetailProducts.Samples,RetailSearch.Samples}
     do
@@ -155,7 +155,7 @@ To run .NET code samples for the Retail API tutorial, you need to set up your vi
 1. Open <walkthrough-editor-select-regex filePath="cloudshell_open/dotnet-docs-samples/retail/interactive-tutorial/RetailProducts.Samples/AddFulfillmentPlaces.cs" regex="private static AddFulfillmentPlacesRequest GetAddFulfillmentRequest">.../RetailProducts.Samples/AddFulfillmentPlaces.cs</walkthrough-editor-select-regex> file and check the `AddFulfillmentPlacesRequest` request.
 
 1. To add the fulfillment places, open the Terminal and run the following command:
-    ```bash /
+    ```bash
     dotnet run -- AddFulfillmentPlacesTutorial
     ```
 
@@ -171,13 +171,13 @@ The Retail API compares the update time you've specified with the latest time re
     PlaceIds = { "store5", "store6", "store7" }
     ```
 
-1. Uncomment line and set the <walkthrough-editor-select-regex filePath="cloudshell_open/dotnet-docs-samples/retail/interactive-tutorial/RetailProducts.Samples/AddFulfillmentPlaces.cs" regex="// requestTimeStamp">`requestTimeStamp`</walkthrough-editor-select-regex> value to yesterday:
+1. Uncomment line and set the <walkthrough-editor-select-regex filePath="cloudshell_open/dotnet-docs-samples/retail/interactive-tutorial/RetailProducts.Samples/AddFulfillmentPlaces.cs" regex="// The outdated request timestamp">`requestTimeStamp`</walkthrough-editor-select-regex> value to yesterday:
     ```
     requestTimeStamp = DateTime.UtcNow.AddDays(-1);
     ```
 
 1. Run the code sample in the Terminal:
-    ```bash /
+    ```bash
     dotnet run -- AddFulfillmentPlacesTutorial
     ```
 
