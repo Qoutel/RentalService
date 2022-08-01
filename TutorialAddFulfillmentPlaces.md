@@ -38,7 +38,7 @@ Clone the Git repository with all the code samples to learn the Retail features.
 
 The Cloud Shell is a powerful IDE that allows you to create, build and run different projects. In this tutorial we will use some of its tools.
 
-Since the repository is already cloned, the project files can be viewed in the <walkthrough-editor-spotlight spotlightid="file-explorer">File Explorer</walkthrough-editor-spotlight>
+Since the repository is already cloned, the project files can be viewed in the <walkthrough-editor-spotlight spotlightid="file-explorer">File Explorer</walkthrough-editor-spotlight>.
 
 1. Click the **Open folder** button and chose the ```cloudshell_open``` folder.
 
@@ -60,7 +60,7 @@ To prepare the work environment you should perform the following steps:
     ```bash \
     dotnet-docs-samples/retail/interactive-tutorial/user_environment_setup.sh \
     <YOUR_PROJECT_ID>
-    s``` 
+    ``` 
 * If you want to perform the environment set up step by step along with getting the explanation you should proceed with the next tutorial step.
 
 ## Set up the work environment step-by-step
@@ -75,19 +75,22 @@ If you don't have a Google Cloud project yet or you're not the owner of an exist
 
 After the project is created, set your PROJECT_ID to a ```project``` variable:
 1. Run the following command in the Terminal:
-    ```gcloud config set project \
+    ```bash \
+    gcloud config set project \
     <YOUR_PROJECT_ID>
     ```
 1. Ensure that the Retail API is enabled for your project in the <walkthrough-watcher-block link-url="https://console.cloud.google.com/apis/api/retail.googleapis.com/">API & Services page</walkthrough-watcher-block>.
 
 ### Create service account
-To access the Retail API, you must create a service account. Check that you are an owner of your Google Cloud project on the walkthrough-watcher-block link-url="https://console.cloud.google.com/iam-admin/iam">IAM page</walkthrough-watcher-block>.
+To access the Retail API, you must create a service account. Check that you are an owner of your Google Cloud project on the <walkthrough-watcher-block link-url="https://console.cloud.google.com/iam-admin/iam">IAM page</walkthrough-watcher-block>.
 1. To create a service account, perform the following command:
-    ```gcloud iam service-accounts create \
+    ```bash \
+    gcloud iam service-accounts create \
     <YOUR_SERVICE_ACCOUNT_ID>
     ```
 1. Assign the needed roles to your service account:
-    ```for role in \
+    ```bash \
+    for role in \
         {retail.admin,editor,bigquery.admin}
     do gcloud projects \
         add-iam-policy-binding \
@@ -97,31 +100,36 @@ To access the Retail API, you must create a service account. Check that you are 
     done
     ```
 1. Use the following command to show the service account email:
-    ```gcloud iam service-accounts \
+    ```bash \
+    gcloud iam service-accounts \
     list|grep \
     <YOUR_SERVICE_ACCOUNT_ID>
     ```
     Copy the service account email.
 1. Upload your service account key JSON file and use it to activate the service account:
-    ```gcloud iam service-accounts keys \
+    ```bash \
+    gcloud iam service-accounts keys \
     create ~/key.json \
     --iam-account \
     <YOUR_SERVICE_ACCOUNT_EMAIL>
     ```
 
-    ```gcloud auth \
+    ```bash \
+    gcloud auth \
     activate-service-account \
     --key-file ~/key.json
     ```
 1. Set the key as the GOOGLE_APPLICATION_CREDENTIALS environment variable to use it for sending requests to the Retail API.
-    ```export \
+    ```bash \
+    export \
     GOOGLE_APPLICATION_CREDENTIALS=~/key.json
     ```
 
 ### Install Google Cloud Retail libraries
 To run .NET code samples for the Retail API tutorial, you need to set up your virtual environment.
 1. Next, install Google packages:
-    ```for service_dir in \
+    ```bash \
+    for service_dir in \
         {RetailEvents.Samples,RetailProducts.Samples,RetailSearch.Samples}
     do
     path=~/cloudshell_open/dotnet-docs-samples/retail/interactive-tutorial/$service_dir
@@ -140,14 +148,14 @@ To run .NET code samples for the Retail API tutorial, you need to set up your vi
 1. Set the following fields to send the `AddFulfillmentPlacesRequest` request:
     - `Product` — the product name whose inventory information will be updated
     - `Type` — the fulfillment type. You can set one of the [supported values](https://cloud.google.com/retail/docs/reference/rpc/google.cloud.retail.v2#addfulfillmentplacesrequest).
-    - `PlaceIds` — the store IDs for each of the fulfillment types
+    - `PlaceIds` — the store IDs for each of the fulfillment types.
     - `AddTime` — the time when the fulfillment updates are pushed. It is used to prevent out-of-order updates on the fulfillment information. If this isn't provided, the internal system time will be used.
     - `AllowMissing` — if set to true and the product is not found, the fulfillment information will be retained for up to 24 hours and processed after the product is created.
 
 1. Open <walkthrough-editor-select-regex filePath="cloudshell_open/dotnet-docs-samples/retail/interactive-tutorial/RetailProducts.Samples/AddFulfillmentPlaces.cs" regex="private static AddFulfillmentPlacesRequest GetAddFulfillmentRequest">.../RetailProducts.Samples/AddFulfillmentPlaces.cs</walkthrough-editor-select-regex> file and check the `AddFulfillmentPlacesRequest` request.
 
 1. To add the fulfillment places, open the Terminal and run the following command:
-    ```bash
+    ```bash /
     dotnet run -- AddFulfillmentPlacesTutorial
     ```
 
@@ -169,7 +177,7 @@ The Retail API compares the update time you've specified with the latest time re
     ```
 
 1. Run the code sample in the Terminal:
-    ```bash
+    ```bash /
     dotnet run -- AddFulfillmentPlacesTutorial
     ```
 
